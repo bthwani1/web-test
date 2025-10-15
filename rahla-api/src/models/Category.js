@@ -1,14 +1,11 @@
-import mongoose from 'mongoose';
-
-const categorySchema = new mongoose.Schema({
+import mongoose from "mongoose";
+import slugify from "../utils/slugify.js";
+const CategorySchema = new mongoose.Schema({
   name: { type: String, required: true },
-  slug: { type: String, required: true, unique: true, index: true },
-  parentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
-  order: { type: Number, default: 0 },
-  published: { type: Boolean, default: true },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  slug: { type: String, unique: true }
 }, { timestamps: true });
-
-export const Category = mongoose.model('Category', categorySchema);
-
-
+CategorySchema.pre("save", function(next){
+  if(!this.slug) this.slug = slugify(this.name);
+  next();
+});
+export default mongoose.model("Category", CategorySchema);

@@ -1,31 +1,21 @@
-import mongoose from 'mongoose';
-
-const mediaSchema = new mongoose.Schema({
-  key: String,
-  url: String,
-  width: Number,
-  height: Number,
-  mime: String,
-  v: String
-}, { _id: false });
-
-const productSchema = new mongoose.Schema({
+import mongoose from "mongoose";
+import slugify from "../utils/slugify.js";
+const ProductSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  slug: { type: String, required: true, unique: true, index: true },
-  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', index: true },
+  slug: { type: String, unique: true },
   price: { type: Number, required: true },
-  oldPrice: Number,
-  tags: { type: [String], index: true },
+  oldPrice: { type: Number },
+  rating: { type: Number, default: 4 },
+  category: { type: String, index: true },     // category name (flat for simplicity)
+  tags: [String],
   desc: String,
-  media: mediaSchema,
-  status: { type: String, enum: ['Draft','Published','Archived'], default: 'Draft' },
-  revisions: [{
-    at: { type: Date, default: Date.now },
-    by: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    diff: Object
-  }]
+  image: String
 }, { timestamps: true });
 
-export const Product = mongoose.model('Product', productSchema);
+ProductSchema.pre("save", function(next){
+  if(!this.slug) this.slug = slugify(this.name);
+  next();
+});
 
-
+ProductSchema.index({ name: "text", desc: "text", tags: "text" });
+export default mongoose.model("Product", ProductSchema);

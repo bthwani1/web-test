@@ -276,54 +276,44 @@ if ('IntersectionObserver' in window) {
 }
 
 // ===== API Integration =====
+const TOKEN_KEY = 'authToken';
+export const setAuthToken = (t)=> localStorage.setItem(TOKEN_KEY, t||'');
+export const getAuthToken = ()=> localStorage.getItem(TOKEN_KEY)||'';
+
 export const apiRequest = async (endpoint, options = {}) => {
-  const token = localStorage.getItem('authToken');
+  const token = getAuthToken();
   const defaultOptions = {
     headers: {
       'Content-Type': 'application/json',
       ...(token && { 'Authorization': `Bearer ${token}` })
     },
   };
-  
-  try {
-    const response = await fetch(`${settings.API_BASE}${endpoint}`, {
-      ...defaultOptions,
-      ...options
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('API Request Error:', error);
-    throw error;
-  }
+  const response = await fetch(`${settings.API_BASE}${endpoint}`, {
+    ...defaultOptions,
+    ...options
+  });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return await response.json();
+};
+
+export const loginApi = async (email, password)=>{
+  const res = await fetch(`${settings.API_BASE}/auth/login`, {
+    method:'POST', headers:{ 'Content-Type':'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await res.json();
+  if (data.token) setAuthToken(data.token);
+  return data;
 };
 
 // دالة لجلب المنتجات من API
 export const fetchProducts = async () => {
   try {
-    const products = await apiRequest('/api/products?status=published');
-    return products;
+    const data = await apiRequest('/products');
+    return Array.isArray(data) ? data : (data.items || null);
   } catch (error) {
     console.log('استخدام المنتجات المحلية بدلاً من API');
     return null;
-  }
-};
-
-// دالة لإرسال طلب شراء
-export const submitOrder = async (orderData) => {
-  try {
-    const result = await apiRequest('/api/orders', {
-      method: 'POST',
-      body: JSON.stringify(orderData)
-    });
-    return result;
-  } catch (error) {
-    console.error('خطأ في إرسال الطلب:', error);
-    throw error;
   }
 };
 
@@ -369,6 +359,21 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // تشغيل العرض الأولي
   initializeApp();
+
+  // Login wiring
+  const btn = document.getElementById('loginBtn');
+  if (btn) {
+    btn.addEventListener('click', async ()=>{
+      const email = document.getElementById('loginEmail')?.value || '';
+      const password = document.getElementById('loginPass')?.value || '';
+      const msg = document.getElementById('loginMsg');
+      try{
+        const r = await loginApi(email, password);
+        if(r.token){ msg && (msg.textContent='تم الدخول'); }
+        else { msg && (msg.textContent=r.error||'فشل الدخول'); }
+      }catch(e){ msg && (msg.textContent='خطأ بالشبكة'); }
+    });
+  }
 
 console.log(`مرحباً بك في ${settings.storeName}!`);
 console.log(`العملة: ${settings.currency}`);

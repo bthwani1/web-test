@@ -1,52 +1,51 @@
-import { Router } from 'express';
-import { z } from 'zod';
-import { Product } from '../models/Product.js';
-import { AuditLog } from '../models/AuditLog.js';
-import { authenticate, authorize } from '../middleware/auth.js';
+import { Router } from "express";
+import Product from "../models/Product.js";
+import { requireAuth, requireRole } from "../middleware/auth.js";
+const r = Router();
 
-export const router = Router();
+// list + filters
+r.get("/", async (req,res)=>{
+  const { q, category, tag, min, max, sort="createdAt:desc", limit=50, offset=0 } = req.query;
+  const find = {};
+  if(category) find.category = category;
+  if(tag) find.tags = tag;
+  if(min) find.price = { ...(find.price||{}), $gte: Number(min) };
+  if(max) find.price = { ...(find.price||{}), $lte: Number(max) };
 
-// simple RBAC middleware placeholder
-// Secure all below
-router.use(authenticate);
+  let query = Product.find(find);
 
-router.get('/', async (req, res, next)=>{
-  try{
-    const { q, limit=50, skip=0 } = req.query;
-    const filter = q ? { name: new RegExp(q, 'i') } : {};
-    const items = await Product.find(filter).limit(Number(limit)).skip(Number(skip)).sort({ updatedAt: -1 });
-    res.json({ items });
-  }catch(err){ next(err); }
+  if(q){
+    query = query.find({ $text: { $search: q } }, { score: { $meta: "textScore" } })
+                 .sort({ score: { $meta: "textScore" } });
+  } else {
+    const [k,dir] = String(sort).split(":");
+    query = query.sort({ [k]: dir==="asc"?1:-1 });
+  }
+
+  const total = await Product.countDocuments(find);
+  const items = await query.skip(Number(offset)).limit(Number(limit));
+  res.json({ total, items });
 });
 
-router.post('/', authorize('Editor','Admin','Owner'), async (req, res, next)=>{
-  try{
-    const body = z.object({ name:z.string().min(2), slug:z.string().min(2), categoryId:z.string().optional(), price:z.number(), oldPrice:z.number().optional(), tags:z.array(z.string()).optional(), desc:z.string().optional(), media:z.any().optional() }).parse(req.body);
-    const before = null;
-    const item = await Product.create(body);
-    await AuditLog.create({ action:'create', collection:'Product', documentId: String(item._id), userId:req.user?.id, ip:req.ip, userAgent:req.headers['user-agent'], before, after:item });
-    res.status(201).json(item);
-  }catch(err){ next(err); }
+r.get("/:slugOrId", async (req,res)=>{
+  const { slugOrId } = req.params;
+  const bySlug = await Product.findOne({ slug: slugOrId });
+  res.json(bySlug || await Product.findById(slugOrId));
 });
 
-router.patch('/:id', authorize('Editor','Admin','Owner'), async (req, res, next)=>{
-  try{
-    const id = req.params.id;
-    const before = await Product.findById(id);
-    const item = await Product.findByIdAndUpdate(id, req.body, { new: true });
-    await AuditLog.create({ action:'update', collection:'Product', documentId: String(id), userId:req.user?.id, ip:req.ip, userAgent:req.headers['user-agent'], before, after:item });
-    res.json(item);
-  }catch(err){ next(err); }
+r.post("/", requireAuth, requireRole("owner","admin","editor"), async (req,res)=>{
+  const p = await Product.create(req.body);
+  res.status(201).json(p);
 });
 
-router.delete('/:id', authorize('Admin','Owner'), async (req, res, next)=>{
-  try{
-    const id = req.params.id;
-    const before = await Product.findById(id);
-    await Product.findByIdAndDelete(id);
-    await AuditLog.create({ action:'delete', collection:'Product', documentId: String(id), userId:req.user?.id, ip:req.ip, userAgent:req.headers['user-agent'], before, after:null });
-    res.json({ ok:true });
-  }catch(err){ next(err); }
+r.patch("/:id", requireAuth, requireRole("owner","admin","editor"), async (req,res)=>{
+  const p = await Product.findByIdAndUpdate(req.params.id, req.body, { new:true });
+  res.json(p);
 });
 
+r.delete("/:id", requireAuth, requireRole("owner","admin"), async (req,res)=>{
+  await Product.findByIdAndDelete(req.params.id);
+  res.json({ deleted:true });
+});
 
+export default r;
