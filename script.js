@@ -398,6 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const name = document.getElementById('pName')?.value?.trim();
       const price = Number(document.getElementById('pPrice')?.value||0);
       const category = document.getElementById('pCategory')?.value?.trim();
+      if (!name || !price) { const msg = document.getElementById('adminMsg'); msg && (msg.textContent='رجاء أدخل الاسم والسعر'); return; }
       const fileEl = document.getElementById('pImageFile');
       const msg = document.getElementById('adminMsg');
       try{

@@ -48,4 +48,32 @@ r.delete("/:id", requireAuth, requireRole("owner","admin"), async (req,res)=>{
   res.json({ deleted:true });
 });
 
+r.get("/export", async (req,res)=>{
+  const { format = 'json' } = req.query;
+  const items = await Product.find({}).lean();
+  if (format === 'csv'){
+    const fields = ['_id','name','slug','price','oldPrice','category','tags','desc'];
+    const csvHeader = fields.join(',');
+    const rows = items.map(i=> fields.map(f=>{
+      const v = Array.isArray(i[f]) ? i[f].join('|') : (i[f] ?? '');
+      return String(v).replaceAll('"','""');
+    }).map(x=>`"${x}"`).join(','));
+    res.setHeader('Content-Type','text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition','attachment; filename="products.csv"');
+    return res.send([csvHeader, ...rows].join('\n'));
+  }
+  res.json(items);
+});
+
+r.post("/import", requireAuth, requireRole("owner","admin","editor"), async (req,res)=>{
+  const payload = Array.isArray(req.body) ? req.body : (req.body.items || []);
+  if (!Array.isArray(payload)) return res.status(400).json({ error: 'invalid payload' });
+  const created = [];
+  for (const p of payload){
+    const item = await Product.create(p);
+    created.push(item._id);
+  }
+  res.json({ created: created.length });
+});
+
 export default r;
