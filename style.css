@@ -5,6 +5,58 @@
     box-sizing: border-box;
 }
 
+/* تحسينات الوصولية (A11y) */
+:focus-visible { 
+    outline: 2px solid #0ea5e9; 
+    outline-offset: 2px; 
+}
+
+@media (prefers-reduced-motion: reduce){
+  * { 
+    animation: none !important; 
+    transition: none !important; 
+  }
+}
+
+/* تحسينات الوصولية إضافية */
+@media (prefers-reduced-motion: no-preference) {
+  .product-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+}
+
+/* تحسين التباين */
+button:focus-visible, 
+input:focus-visible, 
+select:focus-visible {
+  outline: 2px solid #0ea5e9;
+  outline-offset: 2px;
+}
+
+/* تحسين التباين للنصوص */
+.current-price {
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.old-price {
+  color: #6b7280;
+  text-decoration: line-through;
+}
+
+/* تحسين قابلية القراءة */
+@media (max-width: 768px) {
+  .product-name {
+    font-size: 1.1rem;
+    line-height: 1.4;
+  }
+}
+
 /* تحسين تحميل الصور */
 img {
     max-width: 100%;

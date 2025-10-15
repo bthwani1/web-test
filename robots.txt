@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://bthwani1.github.io/web-test/sitemap.xml
