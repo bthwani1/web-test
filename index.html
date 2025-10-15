@@ -1,19 +1,49 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>متجر المنتجات</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <title>رحلة _ Rahla | متجر منتجات</title>
+    <meta name="description" content="متجر رحلة يقدم منتجات مختارة بأسعار مميزة.">
+    <meta name="keywords" content="رحلة, Rahla, متجر, منتجات, تيشيرت, كوب, حقيبة">
+    <meta name="author" content="رحلة _ Rahla">
+    <link rel="canonical" href="https://bthwani1.github.io/web-test/">
+
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://rahlacdn.b-cdn.net">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
+    <!-- Manifest و أيقونة -->
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" href="https://rahlacdn.b-cdn.net/products/rahla-tee.jpg?width=64&format=auto">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="./style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
-    <!-- تحسين الأداء - Preconnect للصور -->
-    <link rel="preconnect" href="https://images.unsplash.com">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bthwani1.github.io/web-test/">
+    <meta property="og:title" content="رحلة _ Rahla | متجر منتجات">
+    <meta property="og:description" content="متجر رحلة يقدم منتجات مختارة بأسعار مميزة.">
+    <meta property="og:image" content="https://rahlacdn.b-cdn.net/products/rahla-tee.jpg?width=1200&quality=70&format=auto">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://bthwani1.github.io/web-test/">
+    <meta property="twitter:title" content="رحلة _ Rahla | متجر منتجات">
+    <meta property="twitter:description" content="متجر رحلة يقدم منتجات مختارة بأسعار مميزة.">
+    <meta property="twitter:image" content="https://rahlacdn.b-cdn.net/products/rahla-tee.jpg?width=1200&quality=70&format=auto">
     
-    <!-- Bunny CDN للصور المحسنة -->
-    <link rel="preconnect" href="https://rahlacdn.b-cdn.net">
+    <!-- Additional Meta Tags -->
+    <meta name="theme-color" content="#0ea5e9">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="رحلة _ Rahla">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="Arabic">
+    <meta name="revisit-after" content="7 days">
 </head>
 <body>
     <header class="header">
@@ -32,6 +62,10 @@
                         <i class="fab fa-whatsapp"></i>
                         تواصل معنا
                     </a>
+                    <button id="whatsCTA" class="whatsapp-cta-btn">
+                        <i class="fab fa-whatsapp"></i>
+                        طلب من السلة
+                    </button>
                 </div>
             </nav>
         </div>
@@ -69,6 +103,74 @@
         </div>
     </footer>
 
-    <script src="script.js"></script>
+    <!-- سكربتات مؤجلة -->
+    <script type="module" src="./script.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then((registration) => {
+                    console.log('Service Worker registered successfully:', registration.scope);
+                })
+                .catch((error) => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        });
+    }
+    </script>
+
+    <!-- JSON-LD for SEO -->
+    <script type="application/ld+json">
+    {
+     "@context":"https://schema.org",
+     "@type":"Product",
+     "name":"تيشيرت رحلة",
+     "image":"https://rahlacdn.b-cdn.net/products/rahla-tee.jpg?width=800&quality=70&format=auto",
+     "description":"قماش قطني 100%",
+     "brand":{"@type":"Brand","name":"رحلة _ Rahla"},
+     "offers":{
+       "@type":"Offer",
+       "priceCurrency":"YER",
+       "price":"4500",
+       "availability":"https://schema.org/InStock"
+     }
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+     "@context":"https://schema.org",
+     "@type":"Product",
+     "name":"كوب سفر",
+     "image":"https://rahlacdn.b-cdn.net/products/rahla-mug.jpg?width=800&quality=70&format=auto",
+     "description":"عازل للحرارة",
+     "brand":{"@type":"Brand","name":"رحلة _ Rahla"},
+     "offers":{
+       "@type":"Offer",
+       "priceCurrency":"YER",
+       "price":"3500",
+       "availability":"https://schema.org/InStock"
+     }
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+     "@context":"https://schema.org",
+     "@type":"Product",
+     "name":"حقيبة قماش",
+     "image":"https://rahlacdn.b-cdn.net/products/rahla-bag.jpg?width=800&quality=70&format=auto",
+     "description":"خياطة متينة",
+     "brand":{"@type":"Brand","name":"رحلة _ Rahla"},
+     "offers":{
+       "@type":"Offer",
+       "priceCurrency":"YER",
+       "price":"5200",
+       "availability":"https://schema.org/InStock"
+     }
+    }
+    </script>
 </body>
 </html>
