@@ -3,9 +3,13 @@ const settings = {
     storeName: "رحلة _ Rahla",
     currency: "YER",
     FREE_SHIPPING_THRESHOLD: 15000,
+    API_BASE: "https://rahla-api.onrender.com",
     // اختياري الآن، فعّله لاحقاً
     // WHATSAPP: "9677XXXXXXXX"
 };
+
+// إعدادات CDN
+const CDN = "https://rahlacdn.b-cdn.net";
 
 // بيانات المنتجات
 const products = [
@@ -17,7 +21,7 @@ const products = [
         category: "ملابس", 
         tags: ["جديد"], 
         rating: 4.6,
-        image: "https://via.placeholder.com/800x600?text=Rahla+Tee", 
+        image: `${CDN}/products/rahla-tee.jpg?width=560&quality=70&format=auto`, 
         desc: "قماش قطني 100%" 
     },
     { 
@@ -27,7 +31,7 @@ const products = [
         category: "اكسسوارات", 
         tags: ["عروض"], 
         rating: 4.3,
-        image: "https://via.placeholder.com/800x600?text=Travel+Mug", 
+        image: `${CDN}/products/travel-mug.jpg?width=560&quality=70&format=auto`, 
         desc: "عازل للحرارة" 
     }
 ];
@@ -64,8 +68,15 @@ function optimizeImage(url, width = 560, quality = 70) {
         return `${baseUrl}?w=${width}&h=${Math.round(width * 0.75)}&fit=crop&crop=center&auto=format&q=${quality}`;
     }
     
-    // للصور الأخرى، يمكن إضافة CDN الخاص بك هنا
-    // مثال: return `https://your-cdn.b-cdn.net/${encodeURIComponent(url)}?width=${width}&quality=${quality}&format=auto`;
+    // إذا كانت الصورة من CDN الخاص بنا، حدث المعاملات
+    if (url.includes(CDN)) {
+        return url.replace(/width=\d+&quality=\d+/, `width=${width}&quality=${quality}`);
+    }
+    
+    // للصور الأخرى من placeholder
+    if (url.includes('placeholder.com') || url.includes('via.placeholder.com')) {
+        return `${CDN}/${encodeURIComponent(url)}?width=${width}&quality=${quality}&format=auto`;
+    }
     
     return url;
 }
@@ -108,6 +119,54 @@ function contactViaWhatsApp(product = null) {
     
     const whatsappUrl = `https://wa.me/${settings.WHATSAPP}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
+}
+
+// دالة للتفاعل مع API
+async function apiRequest(endpoint, options = {}) {
+    try {
+        const url = `${settings.API_BASE}${endpoint}`;
+        const defaultOptions = {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        };
+        
+        const response = await fetch(url, { ...defaultOptions, ...options });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('API Request Error:', error);
+        throw error;
+    }
+}
+
+// دالة لجلب المنتجات من API (للاستخدام المستقبلي)
+async function fetchProductsFromAPI() {
+    try {
+        const products = await apiRequest('/products');
+        return products;
+    } catch (error) {
+        console.log('استخدام المنتجات المحلية بدلاً من API');
+        return null;
+    }
+}
+
+// دالة لإرسال طلب شراء إلى API (للاستخدام المستقبلي)
+async function submitOrder(orderData) {
+    try {
+        const result = await apiRequest('/orders', {
+            method: 'POST',
+            body: JSON.stringify(orderData)
+        });
+        return result;
+    } catch (error) {
+        console.error('خطأ في إرسال الطلب:', error);
+        throw error;
+    }
 }
 
 // إنشاء النجوم للتقييم
@@ -377,6 +436,8 @@ document.addEventListener('mousemove', (e) => {
 console.log(`مرحباً بك في ${settings.storeName}!`);
 console.log(`العملة: ${settings.currency}`);
 console.log(`حد الشحن المجاني: ${formatPrice(settings.FREE_SHIPPING_THRESHOLD)}`);
+console.log(`API Base URL: ${settings.API_BASE}`);
+console.log(`CDN URL: ${CDN}`);
 
 // تعليقات توضيحية للإعدادات
 console.log(`
@@ -384,6 +445,8 @@ console.log(`
 - اسم المتجر: ${settings.storeName}
 - العملة: ${settings.currency}
 - حد الشحن المجاني: ${formatPrice(settings.FREE_SHIPPING_THRESHOLD)}
+- API Base: ${settings.API_BASE}
+- CDN URL: ${CDN}
 - WhatsApp: ${settings.WHATSAPP ? 'مفعل' : 'غير مفعل'}
 
 💡 لتفعيل WhatsApp:
@@ -398,4 +461,21 @@ console.log(`
 - شحن مجاني للمنتجات فوق ${formatPrice(settings.FREE_SHIPPING_THRESHOLD)}
 - تصميم متجاوب لجميع الأجهزة
 - تحسين الأداء والسرعة
+- دعم API للبيانات الديناميكية
+- دوال جاهزة للتفاعل مع الخادم
+
+🌐 إعداد Bunny CDN:
+✅ تم إعداد CDN بنجاح!
+- CDN URL: ${CDN}
+- الصور تستخدم: /products/rahla-tee.jpg و /products/travel-mug.jpg
+- التحسين التلقائي: width, quality, format=auto
+
+📝 مسارات الصور:
+- تيشيرت رحلة: ${CDN}/products/rahla-tee.jpg
+- كوب سفر: ${CDN}/products/travel-mug.jpg
+
+💡 لرفع صور جديدة:
+1. ارفع الصور إلى مجلد /products/ في CDN
+2. حدث مسارات الصور في مصفوفة products
+3. استخدم معاملات التحسين: ?width=560&quality=70&format=auto
 `);
