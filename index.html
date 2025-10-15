@@ -15,25 +15,44 @@
 
     <!-- Manifest و أيقونة -->
     <link rel="manifest" href="./manifest.webmanifest">
-    <link rel="icon" href="https://rahlacdn.b-cdn.net/products/rahla-tee.jpg?width=64&format=auto">
+    <link rel="icon" href="https://rahlacdn.b-cdn.net/rahlamedia/products/rahla-tee.jpg?width=64&format=auto">
 
+    <!-- Critical CSS -->
+    <style>
+      /* Critical styles for above-the-fold content */
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; }
+      .header { background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 1rem 0; }
+      .container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+      .hero { background: linear-gradient(135deg, #0ea5e9, #3b82f6); color: white; padding: 3rem 0; text-align: center; }
+      .hero-title { font-size: 2.5rem; margin-bottom: 1rem; }
+      .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-top: 2rem; }
+      .product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+      .product-image { width: 100%; height: 200px; object-fit: cover; }
+      .product-info { padding: 1rem; }
+      .current-price { color: #1f2937; font-weight: 700; font-size: 1.2rem; }
+      .add-to-cart { background: #0ea5e9; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; width: 100%; }
+    </style>
+    
     <!-- CSS -->
-    <link rel="stylesheet" href="./style.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="./style.css"></noscript>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"></noscript>
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://bthwani1.github.io/web-test/">
     <meta property="og:title" content="رحلة _ Rahla | متجر منتجات">
     <meta property="og:description" content="متجر رحلة يقدم منتجات مختارة بأسعار مميزة.">
-    <meta property="og:image" content="https://rahlacdn.b-cdn.net/products/rahla-tee.jpg?width=1200&quality=70&format=auto">
+    <meta property="og:image" content="https://rahlacdn.b-cdn.net/rahlamedia/products/rahla-tee.jpg?width=1200&quality=70&format=auto">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://bthwani1.github.io/web-test/">
     <meta property="twitter:title" content="رحلة _ Rahla | متجر منتجات">
     <meta property="twitter:description" content="متجر رحلة يقدم منتجات مختارة بأسعار مميزة.">
-    <meta property="twitter:image" content="https://rahlacdn.b-cdn.net/products/rahla-tee.jpg?width=1200&quality=70&format=auto">
+    <meta property="twitter:image" content="https://rahlacdn.b-cdn.net/rahlamedia/products/rahla-tee.jpg?width=1200&quality=70&format=auto">
     
     <!-- Additional Meta Tags -->
     <meta name="theme-color" content="#0ea5e9">
@@ -44,7 +63,7 @@
     <meta name="robots" content="index, follow">
     <meta name="language" content="Arabic">
     <meta name="revisit-after" content="7 days">
-    <script defer src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0" crossorigin="anonymous"></script>
 
     <!-- Google Analytics 4 -->
     <!-- استبدل G-XXXXXX -->
@@ -137,19 +156,19 @@
                             </select>
                         </div>
                         
-                        <button id="applyFilters" style="padding: 0.5rem 1rem; background: #0ea5e9; color: white; border: none; border-radius: 5px;">
+                        <button id="applyFilters" aria-label="تطبيق فلاتر البحث والفلترة" style="padding: 0.5rem 1rem; background: #0ea5e9; color: white; border: none; border-radius: 5px;">
                             تطبيق الفلاتر
                         </button>
                         
-                        <button id="clearFilters" style="padding: 0.5rem 1rem; background: #6b7280; color: white; border: none; border-radius: 5px;">
+                        <button id="clearFilters" aria-label="مسح جميع الفلاتر وإعادة تعيين البحث" style="padding: 0.5rem 1rem; background: #6b7280; color: white; border: none; border-radius: 5px;">
                             مسح الفلاتر
                         </button>
                     </div>
                     
                     <div class="filters">
-                        <button class="filter-btn active" data-category="all">الكل</button>
-                        <button class="filter-btn" data-category="ملابس">ملابس</button>
-                        <button class="filter-btn" data-category="اكسسوارات">اكسسوارات</button>
+                        <button class="filter-btn active" data-category="all" aria-label="عرض جميع المنتجات">الكل</button>
+                        <button class="filter-btn" data-category="ملابس" aria-label="فلترة المنتجات حسب فئة الملابس">ملابس</button>
+                        <button class="filter-btn" data-category="اكسسوارات" aria-label="فلترة المنتجات حسب فئة الإكسسوارات">اكسسوارات</button>
                     </div>
                 </div>
                 
@@ -165,7 +184,7 @@
                     <div style="margin-top: 1rem; font-weight: bold;">
                         الإجمالي: <span id="total">0 YER</span>
                     </div>
-                    <button id="whatsCTA" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #25D366; color: white; border: none; border-radius: 5px;">
+                    <button id="whatsCTA" aria-label="إرسال طلب من السلة عبر واتساب" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #25D366; color: white; border: none; border-radius: 5px;">
                         <i class="fab fa-whatsapp"></i> طلب من السلة
                     </button>
                 </div>
@@ -179,9 +198,6 @@
         </div>
     </footer>
 
-    <!-- Fuse.js for fuzzy search -->
-    <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
-    
     <!-- سكربتات مؤجلة -->
     <script type="module" src="./script.js"></script>
     
@@ -198,7 +214,7 @@
      "@context":"https://schema.org",
      "@type":"Product",
      "name":"تيشيرت رحلة",
-     "image":"https://rahlacdn.b-cdn.net/products/rahla-tee.jpg?width=800&quality=70&format=auto",
+     "image":"https://rahlacdn.b-cdn.net/rahlamedia/products/rahla-tee.jpg?width=800&quality=70&format=auto",
      "description":"قماش قطني 100%",
      "brand":{"@type":"Brand","name":"رحلة _ Rahla"},
      "offers":{
@@ -215,7 +231,7 @@
      "@context":"https://schema.org",
      "@type":"Product",
      "name":"كوب سفر",
-     "image":"https://rahlacdn.b-cdn.net/products/rahla-mug.jpg?width=800&quality=70&format=auto",
+     "image":"https://rahlacdn.b-cdn.net/rahlamedia/products/rahla-mug.jpg?width=800&quality=70&format=auto",
      "description":"عازل للحرارة",
      "brand":{"@type":"Brand","name":"رحلة _ Rahla"},
      "offers":{
@@ -232,7 +248,7 @@
      "@context":"https://schema.org",
      "@type":"Product",
      "name":"حقيبة قماش",
-     "image":"https://rahlacdn.b-cdn.net/products/rahla-bag.jpg?width=800&quality=70&format=auto",
+     "image":"https://rahlacdn.b-cdn.net/rahlamedia/products/rahla-bag.jpg?width=800&quality=70&format=auto",
      "description":"خياطة متينة",
      "brand":{"@type":"Brand","name":"رحلة _ Rahla"},
      "offers":{

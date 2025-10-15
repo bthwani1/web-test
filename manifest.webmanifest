@@ -1,0 +1,12 @@
+{
+  "name": "Rahla Store",
+  "short_name": "Rahla",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0ea5e9",
+  "icons": [
+    { "src": "https://rahlacdn.b-cdn.net/rahlamedia/products/rahla-tee.jpg?width=192&format=auto", "sizes":"192x192", "type":"image/jpeg" },
+    { "src": "https://rahlacdn.b-cdn.net/rahlamedia/products/rahla-tee.jpg?width=512&format=auto", "sizes":"512x512", "type":"image/jpeg" }
+  ]
+}
