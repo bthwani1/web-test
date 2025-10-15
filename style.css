@@ -1,7 +1,29 @@
+/* تحسينات الأداء */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+}
+
+/* تحسين تحميل الصور */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* تحسين الخطوط */
+@font-face {
+    font-family: 'CustomFont';
+    font-display: swap;
+}
+
+/* تحسين الحركة */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
 
 body {
@@ -59,6 +81,29 @@ body {
 .nav-link.active {
     background-color: rgba(255,255,255,0.2);
     transform: translateY(-2px);
+}
+
+.whatsapp-header {
+    margin-left: 1rem;
+}
+
+.whatsapp-link {
+    background: #25D366;
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.whatsapp-link:hover {
+    background: #128C7E;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
 }
 
 /* Hero Section */
@@ -162,6 +207,12 @@ body {
     height: 250px;
     object-fit: cover;
     background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+    transition: transform 0.3s ease;
+    will-change: transform;
+}
+
+.product-image:hover {
+    transform: scale(1.05);
 }
 
 .product-info {
@@ -272,6 +323,40 @@ body {
 .add-to-cart:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* تحسينات أزرار المنتج */
+.product-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.add-to-cart {
+    flex: 1;
+}
+
+.whatsapp-btn {
+    background: #25D366;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-width: 100px;
+}
+
+.whatsapp-btn:hover {
+    background: #128C7E;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
 }
 
 /* Footer */
