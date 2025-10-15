@@ -6,6 +6,14 @@
     <title>متجر المنتجات</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- تحسين الأداء - Preconnect للصور -->
+    <link rel="preconnect" href="https://images.unsplash.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Bunny CDN للصور المحسنة -->
+    <link rel="preconnect" href="https://rahlacdn.b-cdn.net">
 </head>
 <body>
     <header class="header">
@@ -19,6 +27,12 @@
                 <a href="#products" class="nav-link">المنتجات</a>
                 <a href="#about" class="nav-link">حولنا</a>
                 <a href="#contact" class="nav-link">اتصل بنا</a>
+                <div id="whatsapp-header-btn" class="whatsapp-header" style="display: none;">
+                    <a href="#" onclick="contactViaWhatsApp(); return false;" class="whatsapp-link">
+                        <i class="fab fa-whatsapp"></i>
+                        تواصل معنا
+                    </a>
+                </div>
             </nav>
         </div>
     </header>
