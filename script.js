@@ -9,6 +9,15 @@ export const settings = {
 export const img = (path, w=560) =>
   `${settings.CDN}/${path}?width=${w}&quality=70&format=auto&v=1`;
 
+// توليد srcset و sizes تلقائيًا للصورة المعطاة (بُنيت عبر img())
+const buildResponsiveAttrs = (imageUrl)=>{
+  const widths = [420, 720, 1080];
+  const makeUrl = (w)=> imageUrl.replace(/width=\d+/, `width=${w}`);
+  const srcset = widths.map(w=>`${makeUrl(w)} ${w}w`).join(", ");
+  const sizes = "(max-width: 600px) 90vw, 560px";
+  return { srcset, sizes };
+};
+
 // ===== بيانات مبدئية =====
 export const products = [
   { id:"p1", slug:"rahla-tee", name:"تيشيرت رحلة", price:4500, oldPrice:6000,
@@ -68,8 +77,9 @@ export function renderCatalog(list=products){
   list.forEach(p=>{
     const el = document.createElement("article");
     el.className="product-card";
+    const ra = buildResponsiveAttrs(p.image);
     el.innerHTML = `
-      <img class="product-image" src="${p.image}" alt="${p.name}" loading="lazy" decoding="async" width="560" height="420">
+      <img class="product-image" src="${p.image}" srcset="${ra.srcset}" sizes="${ra.sizes}" alt="${p.name}" loading="lazy" decoding="async" width="560" height="420">
       <div class="product-info">
         <h2 class="product-name">${p.name}</h2>
         <div class="product-price">
