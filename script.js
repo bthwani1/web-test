@@ -25,10 +25,10 @@ export const products = [
     image: img("products/rahla-tee.jpg"), desc:"قماش قطني 100%" },
   { id:"p2", slug:"rahla-mug", name:"كوب سفر", price:3500, 
     category:"اكسسوارات", tags:["عروض"], rating:4.3,
-    image: img("products/rahla-mug.jpg"), desc:"عازل للحرارة" },
+    image: img("rahlamedia/products/rahla-mug.jpg"), desc:"عازل للحرارة" },
   { id:"p3", slug:"rahla-bag", name:"حقيبة قماش", price:5200, 
     category:"اكسسوارات", tags:["الأكثر مبيعًا"], rating:4.7,
-    image: img("products/rahla-bag.jpg"), desc:"خياطة متينة" }
+    image: img("rahlamedia/products/rahla-bag.jpg"), desc:"خياطة متينة" }
 ];
 
 // ===== تنسيق العملة =====
@@ -79,7 +79,7 @@ export function renderCatalog(list=products){
     el.className="product-card";
     const ra = buildResponsiveAttrs(p.image);
     el.innerHTML = `
-      <img class="product-image" src="${p.image}" srcset="${ra.srcset}" sizes="${ra.sizes}" alt="${p.name}" loading="lazy" decoding="async" width="560" height="420">
+      <img class="product-image" src="${p.image}" srcset="${ra.srcset}" sizes="${ra.sizes}" alt="${p.name} - ${p.desc}" loading="lazy" decoding="async" width="560" height="420">
       <div class="product-info">
         <h2 class="product-name">${p.name}</h2>
         <div class="product-price">
@@ -87,10 +87,33 @@ export function renderCatalog(list=products){
           ${p.oldPrice ? `<span class="old-price">${money(p.oldPrice)}</span>` : ""}
           ${discountBadge(p)}
         </div>
-        <button class="add-to-cart" data-id="${p.id}">أضف للسلة</button>
+        <button class="add-to-cart" data-id="${p.id}" aria-label="إضافة ${p.name} إلى سلة التسوق">أضف للسلة</button>
       </div>`;
     grid.appendChild(el);
   });
+}
+
+// ===== SEO - JSON-LD آلي =====
+export function injectProductLD(p){
+  const data = {
+    "@context":"https://schema.org",
+    "@type":"Product",
+    "name": p.name,
+    "image": p.image.replace("width=560","width=800"),
+    "description": p.desc || "",
+    "brand": { "@type":"Brand","name": settings.storeName },
+    "offers": {
+      "@type":"Offer",
+      "priceCurrency": settings.currency,
+      "price": String(p.price),
+      "availability":"https://schema.org/InStock"
+    },
+    "aggregateRating": p.rating ? { "@type":"AggregateRating","ratingValue": String(p.rating),"reviewCount":"1" } : undefined
+  };
+  const s = document.createElement("script");
+  s.type="application/ld+json";
+  s.textContent = JSON.stringify(data);
+  document.body.appendChild(s);
 }
 
 // ===== فلترة =====
@@ -253,9 +276,9 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCatalog(); 
   renderCart();
   handleFilters();
-  
-  console.log(`مرحباً بك في ${settings.storeName}!`);
-  console.log(`العملة: ${settings.currency}`);
+
+console.log(`مرحباً بك في ${settings.storeName}!`);
+console.log(`العملة: ${settings.currency}`);
   console.log(`CDN URL: ${settings.CDN}`);
 });
 
