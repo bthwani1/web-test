@@ -84,6 +84,58 @@
             <div class="container">
                 <div class="section-header">
                     <h2 class="section-title">منتجاتنا المميزة</h2>
+                    
+                    <!-- بحث -->
+                    <div style="margin-bottom: 1rem;">
+                        <input type="text" id="searchInput" placeholder="ابحث عن منتج..." 
+                               style="width: 100%; max-width: 400px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                    
+                    <!-- فلترة متقدمة -->
+                    <div class="advanced-filters" style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                        <!-- الفئات -->
+                        <div>
+                            <label>الفئة:</label>
+                            <select id="categoryFilter" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px;">
+                                <option value="">جميع الفئات</option>
+                                <option value="ملابس">ملابس</option>
+                                <option value="اكسسوارات">اكسسوارات</option>
+                            </select>
+                        </div>
+                        
+                        <!-- نطاق السعر -->
+                        <div>
+                            <label>من:</label>
+                            <input type="number" id="priceMin" placeholder="أقل سعر" 
+                                   style="width: 80px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px;">
+                        </div>
+                        
+                        <div>
+                            <label>إلى:</label>
+                            <input type="number" id="priceMax" placeholder="أعلى سعر" 
+                                   style="width: 80px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px;">
+                        </div>
+                        
+                        <!-- الأوسمة -->
+                        <div>
+                            <label>الوسوم:</label>
+                            <select id="tagFilter" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px;">
+                                <option value="">جميع الأوسمة</option>
+                                <option value="جديد">جديد</option>
+                                <option value="عروض">عروض</option>
+                                <option value="الأكثر مبيعًا">الأكثر مبيعًا</option>
+                            </select>
+                        </div>
+                        
+                        <button id="applyFilters" style="padding: 0.5rem 1rem; background: #0ea5e9; color: white; border: none; border-radius: 5px;">
+                            تطبيق الفلاتر
+                        </button>
+                        
+                        <button id="clearFilters" style="padding: 0.5rem 1rem; background: #6b7280; color: white; border: none; border-radius: 5px;">
+                            مسح الفلاتر
+                        </button>
+                    </div>
+                    
                     <div class="filters">
                         <button class="filter-btn active" data-category="all">الكل</button>
                         <button class="filter-btn" data-category="ملابس">ملابس</button>
@@ -93,6 +145,19 @@
                 
                 <div class="products-grid" id="productsGrid">
                     <!-- المنتجات ستظهر هنا -->
+                </div>
+                
+                <!-- سلة التسوق -->
+                <div id="cartSection" style="margin-top: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 10px;">
+                    <h3>سلة التسوق</h3>
+                    <div id="cartList"></div>
+                    <div id="freeShipWrap"></div>
+                    <div style="margin-top: 1rem; font-weight: bold;">
+                        الإجمالي: <span id="total">0 YER</span>
+                    </div>
+                    <button id="whatsCTA" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #25D366; color: white; border: none; border-radius: 5px;">
+                        <i class="fab fa-whatsapp"></i> طلب من السلة
+                    </button>
                 </div>
             </div>
         </section>
@@ -104,6 +169,9 @@
         </div>
     </footer>
 
+    <!-- Fuse.js for fuzzy search -->
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
+    
     <!-- سكربتات مؤجلة -->
     <script type="module" src="./script.js"></script>
     
