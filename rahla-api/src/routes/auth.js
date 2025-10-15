@@ -25,4 +25,10 @@ r.post("/login", async (req,res)=>{
   res.json({ token, user:{ id:u._id, name:u.name, email:u.email, role:u.role } });
 });
 
+r.get("/me", requireAuth, async (req,res)=>{
+  const u = await User.findById(req.user.id).select('-passwordHash');
+  if(!u) return res.status(404).json({ error: "user not found" });
+  res.json({ user: { id:u._id, name:u.name, email:u.email, role:u.role } });
+});
+
 export default r;

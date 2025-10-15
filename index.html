@@ -63,6 +63,12 @@
     <meta name="robots" content="index, follow">
     <meta name="language" content="Arabic">
     <meta name="revisit-after" content="7 days">
+    
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' https://rahlacdn.b-cdn.net data:; connect-src 'self' https://web-test-d179.onrender.com; font-src 'self' https://cdnjs.cloudflare.com;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     <script defer src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0" crossorigin="anonymous"></script>
 
     <!-- Google Analytics 4 -->
@@ -176,14 +182,27 @@
                     <!-- المنتجات ستظهر هنا -->
                 </div>
                 
-                <!-- إدارة بسيطة للمنتجات (إضافة) -->
-                <div id="adminCreate" style="margin-top:2rem;padding:1rem;border:1px solid #eee;border-radius:8px;">
-                  <h3>إضافة منتج (يتطلب تسجيل دخول)</h3>
-                  <input id="pName" placeholder="اسم المنتج" style="width:100%;padding:0.5rem;margin:.25rem 0;border:1px solid #ddd;border-radius:6px;">
-                  <input id="pPrice" type="number" placeholder="السعر" style="width:100%;padding:0.5rem;margin:.25rem 0;border:1px solid #ddd;border-radius:6px;">
-                  <input id="pCategory" placeholder="الفئة" style="width:100%;padding:0.5rem;margin:.25rem 0;border:1px solid #ddd;border-radius:6px;">
-                  <input id="pImageFile" type="file" accept="image/*" style="width:100%;padding:0.5rem;margin:.25rem 0;">
-                  <button id="btnCreateProd" style="padding:.6rem 1rem;background:#0ea5e9;color:#fff;border:none;border-radius:6px;">حفظ</button>
+                <!-- إدارة المنتجات -->
+                <div id="adminPanel" style="margin-top:2rem;padding:1rem;border:1px solid #eee;border-radius:8px;display:none;">
+                  <h3>لوحة الإدارة</h3>
+                  <div id="userInfo" style="margin-bottom:1rem;padding:0.5rem;background:#f0f0f0;border-radius:4px;"></div>
+                  
+                  <!-- إضافة منتج -->
+                  <div style="margin-bottom:2rem;">
+                    <h4>إضافة منتج</h4>
+                    <input id="pName" placeholder="اسم المنتج" style="width:100%;padding:0.5rem;margin:.25rem 0;border:1px solid #ddd;border-radius:6px;">
+                    <input id="pPrice" type="number" placeholder="السعر" style="width:100%;padding:0.5rem;margin:.25rem 0;border:1px solid #ddd;border-radius:6px;">
+                    <input id="pCategory" placeholder="الفئة" style="width:100%;padding:0.5rem;margin:.25rem 0;border:1px solid #ddd;border-radius:6px;">
+                    <input id="pImageFile" type="file" accept="image/*" style="width:100%;padding:0.5rem;margin:.25rem 0;">
+                    <button id="btnCreateProd" style="padding:.6rem 1rem;background:#0ea5e9;color:#fff;border:none;border-radius:6px;">حفظ</button>
+                  </div>
+                  
+                  <!-- قائمة المنتجات للإدارة -->
+                  <div>
+                    <h4>إدارة المنتجات</h4>
+                    <div id="adminProductsList"></div>
+                  </div>
+                  
                   <small id="adminMsg" class="muted"></small>
                 </div>
 

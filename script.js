@@ -322,6 +322,62 @@ export const loginApi = async (email, password)=>{
   return data;
 };
 
+export const getCurrentUser = async ()=>{
+  try {
+    const data = await apiRequest('/auth/me');
+    return data.user;
+  } catch (error) {
+    console.log('User not authenticated');
+    return null;
+  }
+};
+
+// Load admin panel with user info and products list
+export const loadAdminPanel = async ()=>{
+  const user = await getCurrentUser();
+  if (!user) return;
+  
+  const adminPanel = document.getElementById('adminPanel');
+  const userInfo = document.getElementById('userInfo');
+  if (adminPanel) adminPanel.style.display = 'block';
+  if (userInfo) userInfo.innerHTML = `مرحباً ${user.name} (${user.role})`;
+  
+  // Load products for admin
+  try {
+    const data = await apiRequest('/products');
+    const products = data.items || data;
+    const adminList = document.getElementById('adminProductsList');
+    if (adminList) {
+      adminList.innerHTML = products.map(p => `
+        <div style="border:1px solid #ddd;padding:0.5rem;margin:0.25rem 0;border-radius:4px;">
+          <strong>${p.name}</strong> - ${money(p.price)}
+          <button onclick="editProduct('${p._id}')" style="margin-left:0.5rem;padding:0.25rem 0.5rem;background:#0ea5e9;color:#fff;border:none;border-radius:3px;">تعديل</button>
+          <button onclick="deleteProduct('${p._id}')" style="margin-left:0.25rem;padding:0.25rem 0.5rem;background:#dc2626;color:#fff;border:none;border-radius:3px;">حذف</button>
+        </div>
+      `).join('');
+    }
+  } catch (error) {
+    console.error('Failed to load products:', error);
+  }
+};
+
+// Global functions for admin actions
+window.editProduct = async (id) => {
+  // TODO: Implement edit modal
+  alert('تعديل المنتج: ' + id);
+};
+
+window.deleteProduct = async (id) => {
+  if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
+  try {
+    await apiRequest(`/products/${id}`, { method: 'DELETE' });
+    await loadAdminPanel();
+    document.getElementById('adminMsg').textContent = 'تم حذف المنتج';
+  } catch (error) {
+    document.getElementById('adminMsg').textContent = 'فشل حذف المنتج';
+  }
+};
+
 // دالة لجلب المنتجات من API
 export const fetchProducts = async () => {
   try {
@@ -375,6 +431,11 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // تشغيل العرض الأولي
   initializeApp();
+  
+  // Check if user is already logged in
+  if (getAuthToken()) {
+    loadAdminPanel();
+  }
 
   // Login wiring
   const btn = document.getElementById('loginBtn');
@@ -385,7 +446,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const msg = document.getElementById('loginMsg');
       try{
         const r = await loginApi(email, password);
-        if(r.token){ msg && (msg.textContent='تم الدخول'); }
+        if(r.token){ 
+          msg && (msg.textContent='تم الدخول');
+          await loadAdminPanel();
+        }
         else { msg && (msg.textContent=r.error||'فشل الدخول'); }
       }catch(e){ msg && (msg.textContent='خطأ بالشبكة'); }
     });
