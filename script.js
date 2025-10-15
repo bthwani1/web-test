@@ -1,10 +1,11 @@
 // ===== إعدادات عامة =====
 export const settings = {
-    storeName: "رحلة _ Rahla",
-    currency: "YER",
-    FREE_SHIPPING_THRESHOLD: 15000,
+  storeName: "رحلة _ Rahla",
+  currency: "YER",
+  FREE_SHIPPING_THRESHOLD: 15000,
   WHATSAPP: "9677XXXXXXXX", // عدّل لاحقًا
-  CDN: "https://rahlacdn.b-cdn.net"
+  CDN: "https://rahlacdn.b-cdn.net",
+  API_BASE: "https://rahla-api.onrender.com" // Backend API
 };
 export const img = (path, w=560) =>
   `${settings.CDN}/${path}?width=${w}&quality=70&format=auto&v=1`;
@@ -22,7 +23,7 @@ const buildResponsiveAttrs = (imageUrl)=>{
 export const products = [
   { id:"p1", slug:"rahla-tee", name:"تيشيرت رحلة", price:4500, oldPrice:6000,
     category:"ملابس", tags:["جديد"], rating:4.6,
-    image: img("products/rahla-tee.jpg"), desc:"قماش قطني 100%" },
+    image: img("rahlamedia/products/rahla-tee.jpg"), desc:"قماش قطني 100%" },
   { id:"p2", slug:"rahla-mug", name:"كوب سفر", price:3500, 
     category:"اكسسوارات", tags:["عروض"], rating:4.3,
     image: img("rahlamedia/products/rahla-mug.jpg"), desc:"عازل للحرارة" },
@@ -256,6 +257,100 @@ document.addEventListener("click",(e)=>{
   }
 });
 
+// ===== تحسين الأداء =====
+// تحميل الصور بشكل كسول
+const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+if ('IntersectionObserver' in window) {
+  const imageObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        img.src = img.dataset.src || img.src;
+        img.classList.remove('lazy');
+        observer.unobserve(img);
+        }
+    });
+});
+
+  lazyImages.forEach(img => imageObserver.observe(img));
+}
+
+// ===== API Integration =====
+export const apiRequest = async (endpoint, options = {}) => {
+  const token = localStorage.getItem('authToken');
+  const defaultOptions = {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` })
+    },
+  };
+  
+  try {
+    const response = await fetch(`${settings.API_BASE}${endpoint}`, {
+      ...defaultOptions,
+      ...options
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('API Request Error:', error);
+    throw error;
+  }
+};
+
+// دالة لجلب المنتجات من API
+export const fetchProducts = async () => {
+  try {
+    const products = await apiRequest('/api/products?status=published');
+    return products;
+  } catch (error) {
+    console.log('استخدام المنتجات المحلية بدلاً من API');
+    return null;
+  }
+};
+
+// دالة لإرسال طلب شراء
+export const submitOrder = async (orderData) => {
+  try {
+    const result = await apiRequest('/api/orders', {
+      method: 'POST',
+      body: JSON.stringify(orderData)
+    });
+    return result;
+  } catch (error) {
+    console.error('خطأ في إرسال الطلب:', error);
+    throw error;
+  }
+};
+
+// ===== تهيئة التطبيق =====
+const initializeApp = async () => {
+  try {
+    // محاولة جلب المنتجات من API
+    const apiProducts = await fetchProducts();
+    if (apiProducts && apiProducts.length > 0) {
+      // استخدام المنتجات من API
+      renderCatalog(apiProducts);
+      console.log('تم تحميل المنتجات من API');
+    } else {
+      // استخدام المنتجات المحلية
+      renderCatalog(products);
+      console.log('تم تحميل المنتجات المحلية');
+    }
+  } catch (error) {
+    // في حالة الخطأ، استخدام المنتجات المحلية
+    renderCatalog(products);
+    console.log('تم تحميل المنتجات المحلية (خطأ في API)');
+  }
+  
+  renderCart();
+  handleFilters();
+};
+
 // ===== تشغيل أولي =====
 document.addEventListener('DOMContentLoaded', () => {
   // تحديث عنوان المتجر
@@ -273,9 +368,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   // تشغيل العرض الأولي
-  renderCatalog(); 
-  renderCart();
-  handleFilters();
+  initializeApp();
 
 console.log(`مرحباً بك في ${settings.storeName}!`);
 console.log(`العملة: ${settings.currency}`);
