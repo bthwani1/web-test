@@ -5,7 +5,7 @@ export const settings = {
   FREE_SHIPPING_THRESHOLD: 15000,
   WHATSAPP: "9677XXXXXXXX", // عدّل لاحقًا
   CDN: "https://rahlacdn.b-cdn.net",
-  API_BASE: "https://rahla-api.onrender.com" // Backend API
+  API_BASE: "https://web-test-d179.onrender.com" // Backend API
 };
 export const img = (path, w=560) =>
   `${settings.CDN}/${path}?width=${w}&quality=70&format=auto&v=1`;
