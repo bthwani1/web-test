@@ -5,18 +5,52 @@ export const settings = {
   FREE_SHIPPING_THRESHOLD: 15000,
   WHATSAPP: "9677XXXXXXXX", // عدّل لاحقًا
   CDN: "https://rahlacdn.b-cdn.net",
-  API_BASE: "https://web-test-d179.onrender.com" // Backend API
+  API_BASE: "https://web-test-d179.onrender.com", // Backend API
+  DEBUG: false, // إضافة وضع التصحيح
+  RETRY_ATTEMPTS: 3, // عدد محاولات إعادة المحاولة
+  TIMEOUT: 10000 // مهلة زمنية للطلبات
 };
 export const img = (path, w=560) =>
   `${settings.CDN}/${path}?width=${w}&quality=70&format=auto&v=1`;
 
 // توليد srcset و sizes تلقائيًا للصورة المعطاة (بُنيت عبر img())
 const buildResponsiveAttrs = (imageUrl)=>{
-  const widths = [420, 720, 1080];
-  const makeUrl = (w)=> imageUrl.replace(/width=\d+/, `width=${w}`);
-  const srcset = widths.map(w=>`${makeUrl(w)} ${w}w`).join(", ");
-  const sizes = "(max-width: 600px) 90vw, 560px";
-  return { srcset, sizes };
+  try {
+    const widths = [420, 720, 1080];
+    const makeUrl = (w)=> imageUrl.replace(/width=\d+/, `width=${w}`);
+    const srcset = widths.map(w=>`${makeUrl(w)} ${w}w`).join(", ");
+    const sizes = "(max-width: 600px) 90vw, 560px";
+    return { srcset, sizes };
+  } catch (error) {
+    console.error('Error building responsive attributes:', error);
+    return { srcset: imageUrl, sizes: "100vw" };
+  }
+};
+
+// معالجة الأخطاء المحسنة
+const handleError = (error, context = 'Unknown') => {
+  console.error(`Error in ${context}:`, error);
+  if (settings.DEBUG) {
+    alert(`خطأ في ${context}: ${error.message}`);
+  }
+  // إرسال الخطأ إلى Sentry إذا كان متاحًا
+  if (window.Sentry) {
+    window.Sentry.captureException(error, { tags: { context } });
+  }
+};
+
+// وظيفة إعادة المحاولة
+const retryOperation = async (operation, maxAttempts = settings.RETRY_ATTEMPTS) => {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      if (attempt === maxAttempts) {
+        throw error;
+      }
+      await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+    }
+  }
 };
 
 // ===== بيانات مبدئية =====
@@ -297,29 +331,66 @@ export const setAuthToken = (t)=> localStorage.setItem(TOKEN_KEY, t||'');
 export const getAuthToken = ()=> localStorage.getItem(TOKEN_KEY)||'';
 
 export const apiRequest = async (endpoint, options = {}) => {
-  const token = getAuthToken();
-  const defaultOptions = {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` })
-    },
-  };
-  const response = await fetch(`${settings.API_BASE}${endpoint}`, {
-    ...defaultOptions,
-    ...options
-  });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return await response.json();
+  try {
+    const token = getAuthToken();
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), settings.TIMEOUT);
+    
+    const defaultOptions = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` })
+      },
+      signal: controller.signal
+    };
+    
+    const response = await fetch(`${settings.API_BASE}${endpoint}`, {
+      ...defaultOptions,
+      ...options
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`HTTP ${response.status}: ${errorData.error || response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error('Request timeout');
+    }
+    handleError(error, 'apiRequest');
+    throw error;
+  }
 };
 
 export const loginApi = async (email, password)=>{
-  const res = await fetch(`${settings.API_BASE}/auth/login`, {
-    method:'POST', headers:{ 'Content-Type':'application/json' },
-    body: JSON.stringify({ email, password })
-  });
-  const data = await res.json();
-  if (data.token) setAuthToken(data.token);
-  return data;
+  try {
+    const res = await fetch(`${settings.API_BASE}/auth/login`, {
+      method:'POST', 
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP ${res.status}`);
+    }
+    
+    const data = await res.json();
+    if (data.token) {
+      setAuthToken(data.token);
+      // تتبع تسجيل الدخول
+      window.gtag?.('event', 'login', { method: 'email' });
+      window.posthog?.capture('user_logged_in', { method: 'email' });
+    }
+    return data;
+  } catch (error) {
+    handleError(error, 'loginApi');
+    throw error;
+  }
 };
 
 export const getCurrentUser = async ()=>{
@@ -480,9 +551,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }catch(e){ msg && (msg.textContent = 'فشل الإنشاء'); }
     });
   }
-
-console.log(`مرحباً بك في ${settings.storeName}!`);
-console.log(`العملة: ${settings.currency}`);
+  
+  console.log(`مرحباً بك في ${settings.storeName}!`);
+  console.log(`العملة: ${settings.currency}`);
   console.log(`CDN URL: ${settings.CDN}`);
 });
 

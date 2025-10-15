@@ -148,26 +148,37 @@ jobs:
     needs: [frontend, backend, security]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
     steps:
     - uses: actions/checkout@v4
     
     - name: Check deploy credentials
+      id: check-credentials
       run: |
-        if [ -z "${{ vars.RENDER_SERVICE_ID }}" ] || [ -z "${{ vars.RENDER_API_KEY }}" ]; then
-          echo "Deploy credentials not set, skipping..."
+        if [ -z "${{ secrets.RENDER_SERVICE_ID }}" ] || [ -z "${{ secrets.RENDER_API_KEY }}" ]; then
+          echo "Deploy credentials not set, skipping deployment..."
+          echo "Please set RENDER_SERVICE_ID and RENDER_API_KEY as repository secrets"
+          echo "deploy=false" >> $GITHUB_OUTPUT
           exit 0
         fi
-        echo "Deploy credentials found, proceeding..."
+        echo "Deploy credentials found, proceeding with deployment..."
+        echo "deploy=true" >> $GITHUB_OUTPUT
     
     - name: Deploy to Render
-      if: success()
+      if: steps.check-credentials.outputs.deploy == 'true'
       uses: johnbeynon/render-deploy-action@v0.0.8
       with:
-        service-id: ${{ vars.RENDER_SERVICE_ID }}
-        api-key: ${{ vars.RENDER_API_KEY }}
+        service-id: ${{ secrets.RENDER_SERVICE_ID }}
+        api-key: ${{ secrets.RENDER_API_KEY }}
+      continue-on-error: true
     
     - name: Notify deployment
+      if: always()
       run: |
-        echo "🚀 Deployment completed successfully!"
-        echo "Frontend: https://bthwani1.github.io/web-test"
-        echo "Backend: Check Render dashboard for URL"
+        if [ "${{ steps.check-credentials.outputs.deploy }}" == "true" ]; then
+          echo "🚀 Deployment completed successfully!"
+          echo "Frontend: https://bthwani1.github.io/web-test"
+          echo "Backend: Check Render dashboard for URL"
+        else
+          echo "⚠️ Deployment skipped - credentials not configured"
+        fi

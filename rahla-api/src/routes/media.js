@@ -37,6 +37,11 @@ router.post('/sign-upload', requireAuth, requireRole("owner", "admin", "editor")
   }
 });
 
+// Health check endpoint
+router.get('/health', (req, res) => {
+  res.json({ status: 'ok', service: 'media' });
+});
+
 
 
 export default router;
