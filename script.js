@@ -10,6 +10,7 @@ const settings = {
 
 // إعدادات CDN
 const CDN = "https://rahlacdn.b-cdn.net";
+const img = (p,w=560) => `${CDN}/${p}?width=${w}&quality=70&format=auto&v=1`;
 
 // بيانات المنتجات
 const products = [
@@ -21,7 +22,7 @@ const products = [
         category: "ملابس", 
         tags: ["جديد"], 
         rating: 4.6,
-        image: `${CDN}/products/rahla-tee.jpg?width=560&quality=70&format=auto`, 
+        image: img("products/rahla-tee.jpg"), 
         desc: "قماش قطني 100%" 
     },
     { 
@@ -31,8 +32,18 @@ const products = [
         category: "اكسسوارات", 
         tags: ["عروض"], 
         rating: 4.3,
-        image: `${CDN}/products/travel-mug.jpg?width=560&quality=70&format=auto`, 
+        image: img("products/rahla-mug.jpg"), 
         desc: "عازل للحرارة" 
+    },
+    { 
+        id: "p3", 
+        name: "حقيبة قماش", 
+        price: 5200, 
+        category: "اكسسوارات", 
+        tags: ["الأكثر مبيعًا"], 
+        rating: 4.7,
+        image: img("products/rahla-bag.jpg"), 
+        desc: "خياطة متينة" 
     }
 ];
 
@@ -68,8 +79,13 @@ function optimizeImage(url, width = 560, quality = 70) {
         return `${baseUrl}?w=${width}&h=${Math.round(width * 0.75)}&fit=crop&crop=center&auto=format&q=${quality}`;
     }
     
-    // إذا كانت الصورة من CDN الخاص بنا، حدث المعاملات
+    // إذا كانت الصورة من CDN الخاص بنا، استخدم دالة img الجديدة
     if (url.includes(CDN)) {
+        // استخرج مسار الصورة من URL
+        const pathMatch = url.match(new RegExp(CDN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '/([^?]+)'));
+        if (pathMatch) {
+            return img(pathMatch[1], width);
+        }
         return url.replace(/width=\d+&quality=\d+/, `width=${width}&quality=${quality}`);
     }
     
@@ -455,24 +471,26 @@ console.log(`
 3. أعد تحميل الصفحة
 
 🚀 المميزات المتاحة:
-- عرض المنتجات مع الصور المحسنة
-- فلترة حسب الفئة
+- عرض 3 منتجات مع الصور المحسنة
+- فلترة حسب الفئة (ملابس، اكسسوارات)
 - إضافة للسلة مع إشعارات
 - شحن مجاني للمنتجات فوق ${formatPrice(settings.FREE_SHIPPING_THRESHOLD)}
 - تصميم متجاوب لجميع الأجهزة
 - تحسين الأداء والسرعة
 - دعم API للبيانات الديناميكية
 - دوال جاهزة للتفاعل مع الخادم
+- دالة img() محسنة للصور
 
 🌐 إعداد Bunny CDN:
 ✅ تم إعداد CDN بنجاح!
 - CDN URL: ${CDN}
-- الصور تستخدم: /products/rahla-tee.jpg و /products/travel-mug.jpg
+- الصور تستخدم: /products/rahla-tee.jpg، /products/rahla-mug.jpg، /products/rahla-bag.jpg
 - التحسين التلقائي: width, quality, format=auto
 
 📝 مسارات الصور:
 - تيشيرت رحلة: ${CDN}/products/rahla-tee.jpg
-- كوب سفر: ${CDN}/products/travel-mug.jpg
+- كوب سفر: ${CDN}/products/rahla-mug.jpg
+- حقيبة قماش: ${CDN}/products/rahla-bag.jpg
 
 💡 لرفع صور جديدة:
 1. ارفع الصور إلى مجلد /products/ في CDN
