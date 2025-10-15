@@ -68,11 +68,29 @@ jobs:
     - name: Install Lighthouse CI
       run: npm install -g @lhci/cli@0.12.x
     
+    - name: Check Lighthouse CI credentials
+      id: check-lhci
+      run: |
+        if [ -z "${{ secrets.LHCI_GITHUB_APP_TOKEN }}" ]; then
+          echo "⚠️ LHCI_GITHUB_APP_TOKEN not set, skipping Lighthouse CI upload"
+          echo "lhci-enabled=false" >> $GITHUB_OUTPUT
+        else
+          echo "✅ LHCI_GITHUB_APP_TOKEN found"
+          echo "lhci-enabled=true" >> $GITHUB_OUTPUT
+        fi
+    
     - name: Run Lighthouse CI
+      if: steps.check-lhci.outputs.lhci-enabled == 'true'
       run: |
         lhci autorun --upload.target=temporary-public-storage --collect.url=https://bthwani1.github.io/web-test
       env:
         LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+    
+    - name: Run Lighthouse CI (without upload)
+      if: steps.check-lhci.outputs.lhci-enabled == 'false'
+      run: |
+        echo "🔍 Running Lighthouse audit without upload..."
+        lhci autorun --collect.url=https://bthwani1.github.io/web-test
 
   performance-test:
     runs-on: ubuntu-latest
