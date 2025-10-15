@@ -123,21 +123,23 @@ jobs:
   deploy:
     needs: [frontend, backend, security]
     runs-on: ubuntu-latest
-    # Deploy only when secrets or vars are available
-    if: |
-      github.ref == 'refs/heads/main' && github.event_name == 'push' &&
-      ((secrets.RENDER_SERVICE_ID && secrets.RENDER_API_KEY) || (vars.RENDER_SERVICE_ID && vars.RENDER_API_KEY))
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
     - uses: actions/checkout@v4
     
+    - name: Check deploy credentials
+      run: |
+        if [ -z "${{ vars.RENDER_SERVICE_ID }}" ] || [ -z "${{ vars.RENDER_API_KEY }}" ]; then
+          echo "Deploy credentials not set, skipping..."
+          exit 0
+        fi
+    
     - name: Deploy to Render
+      if: success()
       uses: johnbeynon/render-deploy-action@v0.0.8
-      env:
-        RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID || vars.RENDER_SERVICE_ID }}
-        RENDER_API_KEY: ${{ secrets.RENDER_API_KEY || vars.RENDER_API_KEY }}
       with:
-        service-id: ${{ env.RENDER_SERVICE_ID }}
-        api-key: ${{ env.RENDER_API_KEY }}
+        service-id: ${{ vars.RENDER_SERVICE_ID }}
+        api-key: ${{ vars.RENDER_API_KEY }}
     
     - name: Notify deployment
       run: |
