@@ -2,7 +2,9 @@
 const settings = {
     storeName: "رحلة _ Rahla",
     currency: "YER",
-    FREE_SHIPPING_THRESHOLD: 15000
+    FREE_SHIPPING_THRESHOLD: 15000,
+    // اختياري الآن، فعّله لاحقاً
+    // WHATSAPP: "9677XXXXXXXX"
 };
 
 // بيانات المنتجات
@@ -41,9 +43,71 @@ document.title = settings.storeName;
 logo.innerHTML = `<i class="fas fa-store"></i> ${settings.storeName}`;
 heroTitle.textContent = `أهلاً بك في ${settings.storeName}`;
 
+// إظهار زر WhatsApp في الهيدر إذا كان مفعلاً
+if (settings.WHATSAPP) {
+    const whatsappHeaderBtn = document.getElementById('whatsapp-header-btn');
+    if (whatsappHeaderBtn) {
+        whatsappHeaderBtn.style.display = 'block';
+    }
+}
+
 // تنسيق العملة
 function formatPrice(price) {
     return `${price.toLocaleString()} ${settings.currency}`;
+}
+
+// تحسين الصور باستخدام CDN
+function optimizeImage(url, width = 560, quality = 70) {
+    // إذا كانت الصورة من Unsplash، أضف معاملات التحسين
+    if (url.includes('unsplash.com')) {
+        const baseUrl = url.split('?')[0];
+        return `${baseUrl}?w=${width}&h=${Math.round(width * 0.75)}&fit=crop&crop=center&auto=format&q=${quality}`;
+    }
+    
+    // للصور الأخرى، يمكن إضافة CDN الخاص بك هنا
+    // مثال: return `https://your-cdn.b-cdn.net/${encodeURIComponent(url)}?width=${width}&quality=${quality}&format=auto`;
+    
+    return url;
+}
+
+// تحسين الصور حسب حجم الشاشة
+function getOptimizedImageSize() {
+    const screenWidth = window.innerWidth;
+    if (screenWidth < 480) return 300;      // هواتف صغيرة
+    if (screenWidth < 768) return 400;      // هواتف كبيرة
+    if (screenWidth < 1024) return 500;     // أجهزة لوحية
+    return 560;                             // أجهزة سطح المكتب
+}
+
+// تحسين جودة الصور حسب الاتصال
+function getOptimizedQuality() {
+    // تحسين الجودة حسب سرعة الاتصال
+    if ('connection' in navigator) {
+        const connection = navigator.connection;
+        if (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g') {
+            return 50;  // جودة منخفضة للاتصال البطيء
+        }
+        if (connection.effectiveType === '3g') {
+            return 60;  // جودة متوسطة للاتصال المتوسط
+        }
+    }
+    return 70;  // جودة عالية للاتصال السريع
+}
+
+// دالة للتواصل عبر WhatsApp (جاهزة للتفعيل لاحقاً)
+function contactViaWhatsApp(product = null) {
+    if (!settings.WHATSAPP) {
+        console.log('WhatsApp غير مفعل في الإعدادات');
+        return;
+    }
+    
+    let message = `مرحباً، أريد الاستفسار عن منتجاتكم`;
+    if (product) {
+        message = `مرحباً، أريد الاستفسار عن ${product.name} - السعر: ${formatPrice(product.price)}`;
+    }
+    
+    const whatsappUrl = `https://wa.me/${settings.WHATSAPP}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
 }
 
 // إنشاء النجوم للتقييم
@@ -81,7 +145,7 @@ function createProductCard(product) {
     return `
         <div class="product-card" data-category="${product.category}">
             <div class="product-image-container">
-                <img src="${product.image}" alt="${product.name}" class="product-image">
+                <img src="${optimizeImage(product.image, getOptimizedImageSize(), getOptimizedQuality())}" alt="${product.name}" class="product-image" loading="lazy">
                 ${discountPercentage > 0 ? `<div class="discount-badge">-${discountPercentage}%</div>` : ''}
             </div>
             <div class="product-info">
@@ -105,10 +169,18 @@ function createProductCard(product) {
                 
                 ${freeShipping}
                 
-                <button class="add-to-cart" onclick="addToCart('${product.id}')">
-                    <i class="fas fa-cart-plus"></i>
-                    أضف إلى السلة
-                </button>
+                <div class="product-actions">
+                    <button class="add-to-cart" onclick="addToCart('${product.id}')">
+                        <i class="fas fa-cart-plus"></i>
+                        أضف إلى السلة
+                    </button>
+                    ${settings.WHATSAPP ? `
+                    <button class="whatsapp-btn" onclick="contactViaWhatsApp(${JSON.stringify(product).replace(/"/g, '&quot;')})">
+                        <i class="fab fa-whatsapp"></i>
+                        استفسر
+                    </button>
+                    ` : ''}
+                </div>
             </div>
         </div>
     `;
@@ -305,3 +377,25 @@ document.addEventListener('mousemove', (e) => {
 console.log(`مرحباً بك في ${settings.storeName}!`);
 console.log(`العملة: ${settings.currency}`);
 console.log(`حد الشحن المجاني: ${formatPrice(settings.FREE_SHIPPING_THRESHOLD)}`);
+
+// تعليقات توضيحية للإعدادات
+console.log(`
+📋 إعدادات المتجر:
+- اسم المتجر: ${settings.storeName}
+- العملة: ${settings.currency}
+- حد الشحن المجاني: ${formatPrice(settings.FREE_SHIPPING_THRESHOLD)}
+- WhatsApp: ${settings.WHATSAPP ? 'مفعل' : 'غير مفعل'}
+
+💡 لتفعيل WhatsApp:
+1. أضف رقم الهاتف في settings.WHATSAPP
+2. قم بإلغاء التعليق عن السطر: settings.WHATSAPP = "9677XXXXXXXX"
+3. أعد تحميل الصفحة
+
+🚀 المميزات المتاحة:
+- عرض المنتجات مع الصور المحسنة
+- فلترة حسب الفئة
+- إضافة للسلة مع إشعارات
+- شحن مجاني للمنتجات فوق ${formatPrice(settings.FREE_SHIPPING_THRESHOLD)}
+- تصميم متجاوب لجميع الأجهزة
+- تحسين الأداء والسرعة
+`);
