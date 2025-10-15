@@ -4,8 +4,7 @@ const settings = {
     currency: "YER",
     FREE_SHIPPING_THRESHOLD: 15000,
     API_BASE: "https://rahla-api.onrender.com",
-    // اختياري الآن، فعّله لاحقاً
-    // WHATSAPP: "9677XXXXXXXX"
+    WHATSAPP: "9677XXXXXXXX" // غيّر الرقم
 };
 
 // إعدادات CDN
