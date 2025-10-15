@@ -497,3 +497,50 @@ window.addEventListener('beforeinstallprompt', (e) => {
 window.addEventListener('appinstalled', (evt) => {
     console.log('PWA: App was installed successfully');
 });
+
+// Web Vitals Collection
+if (typeof webVitals !== 'undefined') {
+  webVitals.getLCP((metric) => {
+    console.log('LCP:', metric);
+    // Send to GA4
+    window.gtag?.('event', 'web_vitals', {
+      metric_name: 'LCP',
+      value: Math.round(metric.value),
+      metric_id: metric.id
+    });
+    // Send to PostHog
+    window.posthog?.capture('web_vitals', {
+      metric_name: 'LCP',
+      value: Math.round(metric.value),
+      metric_id: metric.id
+    });
+  });
+
+  webVitals.getINP((metric) => {
+    console.log('INP:', metric);
+    window.gtag?.('event', 'web_vitals', {
+      metric_name: 'INP',
+      value: Math.round(metric.value),
+      metric_id: metric.id
+    });
+    window.posthog?.capture('web_vitals', {
+      metric_name: 'INP',
+      value: Math.round(metric.value),
+      metric_id: metric.id
+    });
+  });
+
+  webVitals.getCLS((metric) => {
+    console.log('CLS:', metric);
+    window.gtag?.('event', 'web_vitals', {
+      metric_name: 'CLS',
+      value: Math.round(metric.value * 1000) / 1000,
+      metric_id: metric.id
+    });
+    window.posthog?.capture('web_vitals', {
+      metric_name: 'CLS',
+      value: Math.round(metric.value * 1000) / 1000,
+      metric_id: metric.id
+    });
+  });
+}

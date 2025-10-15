@@ -40,6 +40,20 @@ jobs:
           echo "No tests configured, skipping..."
         fi
     
+    - name: Install Playwright
+      run: |
+        if [ -f package.json ] && grep -q "playwright" package.json; then
+          npx playwright install --with-deps
+        fi
+    
+    - name: Run E2E tests
+      run: |
+        if [ -f package.json ] && grep -q "e2e" package.json; then
+          npm run e2e
+        else
+          echo "No E2E tests configured, skipping..."
+        fi
+    
     - name: Build check
       run: |
         # Check if files are valid
@@ -85,6 +99,16 @@ jobs:
           npm test
         else
           echo "No tests configured, skipping..."
+        fi
+    
+    - name: Check test coverage
+      working-directory: ./rahla-api
+      run: |
+        if [ -f package.json ] && grep -q "jest" package.json; then
+          npm test -- --coverage --passWithNoTests
+          echo "Coverage check completed"
+        else
+          echo "No Jest tests configured, skipping coverage..."
         fi
     
     - name: Check backend syntax
@@ -133,6 +157,7 @@ jobs:
           echo "Deploy credentials not set, skipping..."
           exit 0
         fi
+        echo "Deploy credentials found, proceeding..."
     
     - name: Deploy to Render
       if: success()
