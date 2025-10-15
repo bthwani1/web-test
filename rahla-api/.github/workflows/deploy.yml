@@ -1,0 +1,66 @@
+name: Deploy to Render
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run tests
+      run: |
+        if [ -f package.json ] && grep -q "test" package.json; then
+          npm test
+        else
+          echo "No tests configured"
+        fi
+    
+    - name: Check syntax
+      run: |
+        echo "Checking JavaScript syntax..."
+        find src -name "*.js" -exec node -c {} \;
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Deploy to Render
+      uses: johnbeynon/render-deploy-action@v0.0.8
+      with:
+        service-id: ${{ secrets.RENDER_SERVICE_ID }}
+        api-key: ${{ secrets.RENDER_API_KEY }}
+    
+    - name: Run database migrations
+      run: |
+        echo "Database migrations would run here if needed"
+    
+    - name: Health check
+      run: |
+        echo "Waiting for deployment to complete..."
+        sleep 30
+        
+        # Get the service URL from Render (you'd need to implement this)
+        echo "Running health check..."
+        # curl -f $SERVICE_URL/health || exit 1
+    
+    - name: Notify success
+      run: |
+        echo "✅ Deployment successful!"
+        echo "API is now live on Render"

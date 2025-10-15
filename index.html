@@ -176,6 +176,18 @@
                     <!-- المنتجات ستظهر هنا -->
                 </div>
                 
+                <!-- إدارة بسيطة للمنتجات (إضافة) -->
+                <div id="adminCreate" style="margin-top:2rem;padding:1rem;border:1px solid #eee;border-radius:8px;">
+                  <h3>إضافة منتج (يتطلب تسجيل دخول)</h3>
+                  <input id="pName" placeholder="اسم المنتج" style="width:100%;padding:0.5rem;margin:.25rem 0;border:1px solid #ddd;border-radius:6px;">
+                  <input id="pPrice" type="number" placeholder="السعر" style="width:100%;padding:0.5rem;margin:.25rem 0;border:1px solid #ddd;border-radius:6px;">
+                  <input id="pCategory" placeholder="الفئة" style="width:100%;padding:0.5rem;margin:.25rem 0;border:1px solid #ddd;border-radius:6px;">
+                  <input id="pImageFile" type="file" accept="image/*" style="width:100%;padding:0.5rem;margin:.25rem 0;">
+                  <button id="btnCreateProd" style="padding:.6rem 1rem;background:#0ea5e9;color:#fff;border:none;border-radius:6px;">حفظ</button>
+                  <small id="adminMsg" class="muted"></small>
+                </div>
+
+                
                 <!-- سلة التسوق -->
                 <div id="cartSection" style="margin-top: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 10px;">
                     <h3>سلة التسوق</h3>

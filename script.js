@@ -45,9 +45,25 @@ export const addToCart = (p, qty=1)=>{
   writeCart(c); renderCart();
   // GA4 add_to_cart
   window.gtag?.('event','add_to_cart',{
-    value: qty,
+    value: p.price * qty,
     currency: settings.currency,
-    items: [{ item_id: p.id, item_name: p.name }]
+    items: [{ 
+      item_id: p.id, 
+      item_name: p.name,
+      category: p.category,
+      price: p.price,
+      quantity: qty
+    }]
+  });
+  
+  // PostHog tracking (if available)
+  window.posthog?.capture('product_added_to_cart', {
+    product_id: p.id,
+    product_name: p.name,
+    category: p.category,
+    price: p.price,
+    quantity: qty,
+    total_value: p.price * qty
   });
 };
 export const removeFromCart = (id)=>{
@@ -372,6 +388,31 @@ document.addEventListener('DOMContentLoaded', () => {
         if(r.token){ msg && (msg.textContent='تم الدخول'); }
         else { msg && (msg.textContent=r.error||'فشل الدخول'); }
       }catch(e){ msg && (msg.textContent='خطأ بالشبكة'); }
+    });
+  }
+
+  // Admin create product flow (sign-upload then create)
+  const createBtn = document.getElementById('btnCreateProd');
+  if (createBtn) {
+    createBtn.addEventListener('click', async ()=>{
+      const name = document.getElementById('pName')?.value?.trim();
+      const price = Number(document.getElementById('pPrice')?.value||0);
+      const category = document.getElementById('pCategory')?.value?.trim();
+      const fileEl = document.getElementById('pImageFile');
+      const msg = document.getElementById('adminMsg');
+      try{
+        let imageUrl = '';
+        const file = fileEl?.files?.[0];
+        if (file) {
+          const key = `rahlamedia/products/${Date.now()}-${file.name}`;
+          const sig = await apiRequest('/media/sign-upload', { method:'POST', body: JSON.stringify({ key, contentType: file.type }) });
+          await fetch(sig.url, { method: 'PUT', headers: sig.headers, body: file });
+          imageUrl = sig.publicUrl;
+        }
+        const body = { name, price, category, image: imageUrl, tags: [], desc: '' };
+        await apiRequest('/products', { method:'POST', body: JSON.stringify(body) });
+        msg && (msg.textContent = 'تم إنشاء المنتج');
+      }catch(e){ msg && (msg.textContent = 'فشل الإنشاء'); }
     });
   }
 
