@@ -1,8 +1,8 @@
 // ===== إعدادات عامة =====
 export const settings = {
-  storeName: "رحلة _ Rahla",
-  currency: "YER",
-  FREE_SHIPPING_THRESHOLD: 15000,
+    storeName: "رحلة _ Rahla",
+    currency: "YER",
+    FREE_SHIPPING_THRESHOLD: 15000,
   WHATSAPP: "9677XXXXXXXX", // عدّل لاحقًا
   CDN: "https://rahlacdn.b-cdn.net"
 };
@@ -13,8 +13,13 @@ export const img = (path, w=560) =>
 export const products = [
   { id:"p1", slug:"rahla-tee", name:"تيشيرت رحلة", price:4500, oldPrice:6000,
     category:"ملابس", tags:["جديد"], rating:4.6,
-    image: img("products/rahla-tee.jpg"), desc:"قماش قطني 100%" }
-  // أضف لاحقًا p2/p3… بعد رفع صورها إلى Bunny
+    image: img("products/rahla-tee.jpg"), desc:"قماش قطني 100%" },
+  { id:"p2", slug:"rahla-mug", name:"كوب سفر", price:3500, 
+    category:"اكسسوارات", tags:["عروض"], rating:4.3,
+    image: img("products/rahla-mug.jpg"), desc:"عازل للحرارة" },
+  { id:"p3", slug:"rahla-bag", name:"حقيبة قماش", price:5200, 
+    category:"اكسسوارات", tags:["الأكثر مبيعًا"], rating:4.7,
+    image: img("products/rahla-bag.jpg"), desc:"خياطة متينة" }
 ];
 
 // ===== تنسيق العملة =====
@@ -28,6 +33,12 @@ export const addToCart = (p, qty=1)=>{
   const c = readCart(); const i = c.find(x=>x.id===p.id);
   if(i) i.qty += qty; else c.push({ id:p.id, name:p.name, price:p.price, qty });
   writeCart(c); renderCart();
+  // GA4 add_to_cart
+  window.gtag?.('event','add_to_cart',{
+    value: qty,
+    currency: settings.currency,
+    items: [{ item_id: p.id, item_name: p.name }]
+  });
 };
 export const removeFromCart = (id)=>{
   writeCart(readCart().filter(x=>x.id!==id)); renderCart();
@@ -133,6 +144,44 @@ export function renderCart(){
   }
 }
 
+// ===== إدارة الفلترة =====
+export function handleFilters(){
+  const searchInput = document.getElementById('searchInput');
+  const categoryFilter = document.getElementById('categoryFilter');
+  const priceMin = document.getElementById('priceMin');
+  const priceMax = document.getElementById('priceMax');
+  const tagFilter = document.getElementById('tagFilter');
+  const applyBtn = document.getElementById('applyFilters');
+  const clearBtn = document.getElementById('clearFilters');
+
+  function applyCurrentFilters(){
+    const filters = {
+      q: searchInput?.value || "",
+      cats: categoryFilter?.value ? [categoryFilter.value] : [],
+      tags: tagFilter?.value ? [tagFilter.value] : [],
+      min: priceMin?.value ? parseInt(priceMin.value) : null,
+      max: priceMax?.value ? parseInt(priceMax.value) : null
+    };
+    
+    const filteredProducts = applyFilters(filters);
+    renderCatalog(filteredProducts);
+  }
+
+  function clearAllFilters(){
+    if(searchInput) searchInput.value = "";
+    if(categoryFilter) categoryFilter.value = "";
+    if(priceMin) priceMin.value = "";
+    if(priceMax) priceMax.value = "";
+    if(tagFilter) tagFilter.value = "";
+    renderCatalog(products);
+  }
+
+  // أحداث البحث الفوري
+  if(searchInput) searchInput.addEventListener('input', applyCurrentFilters);
+  if(applyBtn) applyBtn.addEventListener('click', applyCurrentFilters);
+  if(clearBtn) clearBtn.addEventListener('click', clearAllFilters);
+}
+
 // ===== أحداث =====
 document.addEventListener("click",(e)=>{
   if(e.target.matches(".add-to-cart")){
@@ -147,6 +196,19 @@ document.addEventListener("click",(e)=>{
   }
   if(e.target.matches(".rm")) removeFromCart(e.target.dataset.id);
   if(e.target.id==="whatsCTA") openWhatsAppCTA();
+  
+  // فلترة سريعة بالفئات
+  if(e.target.matches(".filter-btn")){
+    const category = e.target.dataset.category;
+    const filteredProducts = category === 'all' ? products : 
+      applyFilters({cats: [category]});
+    renderCatalog(filteredProducts);
+    
+    // تحديث الأزرار النشطة
+    document.querySelectorAll('.filter-btn').forEach(btn => 
+      btn.classList.remove('active'));
+    e.target.classList.add('active');
+  }
 
   // تبديل فئة التصنيف
   if(e.target.matches('.filter-btn')){
@@ -180,37 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // تشغيل العرض الأولي
   renderCatalog(); 
   renderCart();
-
-  // البحث (اختياري: إذا وُجد مدخل بحث)
-  const searchEl = document.getElementById('searchInput') || document.getElementById('search');
-  if (searchEl) {
-    searchEl.addEventListener('input', () => { filterState.q = searchEl.value || ""; refreshProducts(); });
-  }
-
-  // نطاق السعر (اختياري: إذا وُجدتا حقول السعر)
-  const minEl = document.getElementById('minPrice');
-  const maxEl = document.getElementById('maxPrice');
-  const onPriceChange = ()=>{
-    const vMin = minEl && minEl.value!=='' ? Number(minEl.value) : null;
-    const vMax = maxEl && maxEl.value!=='' ? Number(maxEl.value) : null;
-    filterState.min = Number.isFinite(vMin) ? vMin : null;
-    filterState.max = Number.isFinite(vMax) ? vMax : null;
-    refreshProducts();
-  };
-  if (minEl) minEl.addEventListener('input', onPriceChange);
-  if (maxEl) maxEl.addEventListener('input', onPriceChange);
-
-  // الوسوم (اختياري: عناصر تحمل class=tag-filter و data-tag)
-  document.addEventListener('click', (ev)=>{
-    if (ev.target.matches('.tag-filter')){
-      const tag = ev.target.dataset.tag;
-      if (!tag) return;
-      const i = filterState.tags.indexOf(tag);
-      if (i>=0) filterState.tags.splice(i,1); else filterState.tags.push(tag);
-      ev.target.classList.toggle('active');
-      refreshProducts();
-    }
-  });
+  handleFilters();
   
   console.log(`مرحباً بك في ${settings.storeName}!`);
   console.log(`العملة: ${settings.currency}`);
