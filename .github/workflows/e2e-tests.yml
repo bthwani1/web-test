@@ -71,13 +71,15 @@ jobs:
     - name: Check Lighthouse CI credentials
       id: check-lhci
       run: |
-        if [ -z "${{ secrets.LHCI_GITHUB_APP_TOKEN }}" ]; then
+        if [ -z "${LHCI_GITHUB_APP_TOKEN:-}" ]; then
           echo "⚠️ LHCI_GITHUB_APP_TOKEN not set, skipping Lighthouse CI upload"
           echo "lhci-enabled=false" >> $GITHUB_OUTPUT
         else
           echo "✅ LHCI_GITHUB_APP_TOKEN found"
           echo "lhci-enabled=true" >> $GITHUB_OUTPUT
         fi
+      env:
+        LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
     
     - name: Run Lighthouse CI
       if: steps.check-lhci.outputs.lhci-enabled == 'true'
