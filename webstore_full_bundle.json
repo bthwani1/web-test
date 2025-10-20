@@ -1,0 +1,127 @@
+{
+  "scope": "WEB-STORE",
+  "generated_at": "2025-10-20T14:34:16.692917Z",
+  "evidence": {
+    "summary_web2": {
+      "kpis": {
+        "routes_found": 0,
+        "api_calls_found": 3,
+        "unique_api_pairs": 3,
+        "duplicate_api_pairs": 0,
+        "suspected_secret_refs": 3,
+        "security_headers_mentions": 15
+      },
+      "artifacts": {
+        "routes_inventory_web2.csv": "/mnt/data/audit_output2/routes_inventory_web2.csv",
+        "frontend_api_calls_web2.csv": "/mnt/data/audit_output2/frontend_api_calls_web2.csv",
+        "api_duplicates_web2.csv": "/mnt/data/audit_output2/api_duplicates_web2.csv"
+      }
+    },
+    "routes_web2": [],
+    "api_calls_web2": [
+      {
+        "method": "GET",
+        "url": "${settings.API_BASE}${endpoint}",
+        "normalized_path": "/${SETTINGS.API_BASE}${PARAM}",
+        "file": "/mnt/data/audit_web2/web-test-main/script.js",
+        "type": "fetch",
+        "snippet": "fetch(`${settings.API_BASE}${endpoint}`, {\n      ...defaultOptions,\n      ...options\n    })"
+      },
+      {
+        "method": "POST",
+        "url": "${settings.API_BASE}/auth/login",
+        "normalized_path": "/${SETTINGS.API_BASE}/AUTH/LOGIN",
+        "file": "/mnt/data/audit_web2/web-test-main/script.js",
+        "type": "fetch",
+        "snippet": "fetch(`${settings.API_BASE}/auth/login`, {\n      method:'POST', \n      headers:{ 'Content-Type':'application/json' },\n      body: JSON.stringify({ email, password })"
+      },
+      {
+        "method": "GET",
+        "url": "${this.apiBase}${endpoint}",
+        "normalized_path": "/${THIS.APIBASE}${PARAM}",
+        "file": "/mnt/data/audit_web2/web-test-main/admin/admin.js",
+        "type": "fetch",
+        "snippet": "fetch(`${this.apiBase}${endpoint}`, {\n            ...defaultOptions,\n            ...options\n        })"
+      }
+    ],
+    "api_duplicates_web2": [],
+    "security_headers_mentions": [
+      {
+        "file": "/mnt/data/audit_web2/web-test-main/DEPLOYMENT_GUIDE.md",
+        "header": "X-Frame-Options"
+      },
+      {
+        "file": "/mnt/data/audit_web2/web-test-main/DEPLOYMENT_GUIDE.md",
+        "header": "Referrer-Policy"
+      },
+      {
+        "file": "/mnt/data/audit_web2/web-test-main/FINAL_CHECKLIST.md",
+        "header": "X-Frame-Options"
+      },
+      {
+        "file": "/mnt/data/audit_web2/web-test-main/FINAL_CHECKLIST.md",
+        "header": "Referrer-Policy"
+      },
+      {
+        "file": "/mnt/data/audit_web2/web-test-main/FINAL_FIXES_REPORT.md",
+        "header": "Content-Security-Policy"
+      },
+      {
+        "file": "/mnt/data/audit_web2/web-test-main/FINAL_FIXES_REPORT.md",
+        "header": "Permissions-Policy"
+      },
+      {
+        "file": "/mnt/data/audit_web2/web-test-main/README.md",
+        "header": "X-Frame-Options"
+      },
+      {
+        "file": "/mnt/data/audit_web2/web-test-main/README.md",
+        "header": "Referrer-Policy"
+      },
+      {
+        "file": "/mnt/data/audit_web2/web-test-main/SECURITY_GUIDE.md",
+        "header": "Content-Security-Policy"
+      },
+      {
+        "file": "/mnt/data/audit_web2/web-test-main/SECURITY_GUIDE.md",
+        "header": "X-Frame-Options"
+      },
+      {
+        "file": "/mnt/data/audit_web2/web-test-main/SECURITY_GUIDE.md",
+        "header": "Referrer-Policy"
+      },
+      {
+        "file": "/mnt/data/audit_web2/web-test-main/index.html",
+        "header": "Content-Security-Policy"
+      },
+      {
+        "file": "/mnt/data/audit_web2/web-test-main/index.html",
+        "header": "X-Frame-Options"
+      },
+      {
+        "file": "/mnt/data/audit_web2/web-test-main/index.html",
+        "header": "Referrer-Policy"
+      },
+      {
+        "file": "/mnt/data/audit_web2/web-test-main/index.html",
+        "header": "Permissions-Policy"
+      }
+    ],
+    "secrets_summary": [
+      {
+        "file": "/mnt/data/audit_web2/web-test-main/TESTING_GUIDE.md",
+        "type": "generic_key"
+      },
+      {
+        "file": "/mnt/data/audit_web2/web-test-main/rahla-api/src/tests/setup.js",
+        "type": "generic_key"
+      },
+      {
+        "file": "/mnt/data/audit_web2/web-test-main/tests/3-api-integration.spec.js",
+        "type": "generic_key"
+      }
+    ]
+  },
+  "previous_evidence": {},
+  "plans": {}
+}
