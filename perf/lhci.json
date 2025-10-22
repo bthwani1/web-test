@@ -1,0 +1,1 @@
+{ "ci": { "collect": { "numberOfRuns": 3, "url": ["https://staging.example.tld/"], "settings": { "preset": "desktop" } }, "assert": { "assertions": { "largest-contentful-paint": ["error", {"maxNumericValue": 2500}] } } } }

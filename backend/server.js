@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
 const * as Sentry from '@sentry/node';
+const { applySecurityHeaders } = require('../security-headers');
 require('dotenv').config();
 
 const app = express();
@@ -30,6 +31,9 @@ app.use(helmet({
     }
   }
 }));
+
+// تطبيق رؤوس الأمان المتقدمة
+applySecurityHeaders(app);
 
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'https://bthwani1.github.io',

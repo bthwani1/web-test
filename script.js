@@ -1,17 +1,19 @@
 // ===== إعدادات عامة =====
+import { config, getImageUrl } from './config.js';
+
 export const settings = {
-  storeName: "رحلة _ Rahla",
-  currency: "YER",
-  FREE_SHIPPING_THRESHOLD: 15000,
-  WHATSAPP: "9677XXXXXXXX", // عدّل لاحقًا
-  CDN: "https://rahlacdn.b-cdn.net",
-  API_BASE: "https://web-test-d179.onrender.com", // Backend API
-  DEBUG: false, // إضافة وضع التصحيح
+  storeName: config.STORE_NAME,
+  currency: config.CURRENCY,
+  FREE_SHIPPING_THRESHOLD: config.FREE_SHIPPING_THRESHOLD,
+  WHATSAPP: config.WHATSAPP_NUMBER,
+  CDN: config.CDN_URL,
+  API_BASE: config.API_BASE_URL,
+  DEBUG: config.DEBUG_MODE,
   RETRY_ATTEMPTS: 3, // عدد محاولات إعادة المحاولة
   TIMEOUT: 10000 // مهلة زمنية للطلبات
 };
-export const img = (path, w=560) =>
-  `${settings.CDN}/${path}?width=${w}&quality=70&format=auto&v=1`;
+
+export const img = getImageUrl;
 
 // توليد srcset و sizes تلقائيًا للصورة المعطاة (بُنيت عبر img())
 const buildResponsiveAttrs = (imageUrl)=>{

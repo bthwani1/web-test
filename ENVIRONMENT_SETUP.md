@@ -1,178 +1,145 @@
-# 🔧 دليل إعداد متغيرات البيئة - Rahla Store
+# إعداد المتغيرات البيئية - Environment Variables Setup
 
-## 📋 المتغيرات المطلوبة
+## نظرة عامة
+تم تحديث المشروع لاستخدام المتغيرات البيئية لإدارة الإعدادات المختلفة. هذا يوفر مرونة أكبر وأمان أفضل للمشروع.
 
-### 1. **GitHub Repository Variables**
+## الملفات المحدثة
 
-#### إعداد في GitHub:
-```
-Settings → Secrets and variables → Actions → Variables
-```
+### 1. config.js
+ملف التكوين الرئيسي الذي يحتوي على جميع المتغيرات البيئية:
+- إعدادات المتجر (الاسم، العملة، عتبة الشحن المجاني)
+- إعدادات Google Analytics 4
+- إعدادات CDN و API
+- إعدادات قاعدة البيانات
+- إعدادات المراقبة والأمان
 
-#### المتغيرات المطلوبة:
+### 2. ga4-loader.js
+ملف ديناميكي لتحميل Google Analytics 4 بناءً على التكوين:
+- تحميل GA4 فقط عند وجود ID صحيح
+- تجنب التحميل في وضع التصحيح
+- تهيئة تلقائية عند تحميل الصفحة
+
+### 3. script.js
+تم تحديث الملف لاستخدام المتغيرات من config.js بدلاً من القيم الثابتة.
+
+### 4. index.html
+تم تحديث ملف HTML لاستخدام النظام الديناميكي لتحميل GA4.
+
+## كيفية إعداد المتغيرات البيئية
+
+### للبيئة المحلية (Local Development)
+
+1. **إنشاء ملف .env في المجلد الجذر:**
 ```bash
-RENDER_SERVICE_ID=your-render-service-id
-RENDER_API_KEY=your-render-api-key
-```
+# Frontend Environment Variables
+GA4_MEASUREMENT_ID=G-YOUR-ACTUAL-GA4-ID
+STORE_NAME=رحلة _ Rahla
+CURRENCY=YER
+FREE_SHIPPING_THRESHOLD=15000
+WHATSAPP_NUMBER=9677XXXXXXXX
+CDN_URL=https://rahlacdn.b-cdn.net
+API_BASE_URL=https://web-test-d179.onrender.com
+DEBUG_MODE=true
 
-### 2. **Render Environment Variables**
+# Backend API Configuration
+BACKEND_PORT=8080
+MONGODB_URI=mongodb+srv://USER:PASS@CLUSTER/rahla?retryWrites=true&w=majority
+JWT_SECRET=your-strong-jwt-secret
+CORS_ORIGIN=https://bthwani1.github.io,https://bthwani1.github.io/web-test
 
-#### إعداد في Render Dashboard:
-```
-Dashboard → Your Service → Environment
-```
-
-#### المتغيرات المطلوبة:
-```bash
-# Database
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/rahla-store?retryWrites=true&w=majority
-
-# Authentication
-JWT_SECRET=your-super-secret-jwt-key-here
-
-# CORS
-CORS_ORIGIN=https://bthwani1.github.io
-
-# CDN
-BUNNY_STORAGE_FTP_PASSWORD=your-bunny-cdn-password
+# CDN Configuration
+BUNNY_CDN_API_KEY=your-bunny-api-key
+BUNNY_CDN_STORAGE_ZONE=rahlamedia
+BUNNY_CDN_PULL_ZONE=rahlacdn
 
 # Monitoring
-SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
+SENTRY_DSN=your-sentry-dsn-here
+POSTHOG_API_KEY=your-posthog-key
+
+# Admin Configuration
+ADMIN_NAME=Owner
+ADMIN_EMAIL=owner@example.com
+ADMIN_PASSWORD=ChangeMe123
+
+# Security
+NODE_ENV=development
 ```
 
-### 3. **Frontend Configuration**
+### للبيئة الإنتاجية (Production)
 
-#### GA4 Measurement ID:
-```html
-<!-- في index.html السطر 79 -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXX"></script>
-<!-- استبدل G-XXXXXX بـ GA4 Measurement ID الحقيقي -->
+1. **في Render.com أو منصة النشر:**
+   - اذهب إلى إعدادات البيئة (Environment Variables)
+   - أضف المتغيرات المطلوبة مع القيم الصحيحة
+
+2. **المتغيرات المطلوبة للإنتاج:**
+```
+GA4_MEASUREMENT_ID=G-YOUR-ACTUAL-GA4-ID
+NODE_ENV=production
+MONGODB_URI=mongodb+srv://your-actual-connection-string
+JWT_SECRET=your-production-jwt-secret
+BUNNY_CDN_API_KEY=your-actual-bunny-key
 ```
 
-#### PostHog (اختياري):
+## المتغيرات المهمة
+
+### Google Analytics 4
+- `GA4_MEASUREMENT_ID`: معرف قياس GA4 (يبدأ بـ G-)
+- يتم تحميل GA4 تلقائياً عند وجود ID صحيح
+- لا يتم تحميل GA4 في وضع التصحيح
+
+### إعدادات المتجر
+- `STORE_NAME`: اسم المتجر
+- `CURRENCY`: العملة المستخدمة
+- `FREE_SHIPPING_THRESHOLD`: عتبة الشحن المجاني
+- `WHATSAPP_NUMBER`: رقم واتساب للتواصل
+
+### إعدادات API و CDN
+- `API_BASE_URL`: رابط API الخلفي
+- `CDN_URL`: رابط CDN للصور
+- `BUNNY_CDN_API_KEY`: مفتاح API لـ Bunny CDN
+
+## التحقق من الإعداد
+
+### 1. فحص المتغيرات في المتصفح
+افتح Developer Tools واكتب:
 ```javascript
-// في script.js
-window.posthog?.capture('event_name', { data: 'value' });
+import('./config.js').then(config => {
+  console.log('Current config:', config.config);
+});
 ```
 
-## 🚀 خطوات الإعداد
+### 2. فحص GA4
+- تأكد من وجود GA4 ID صحيح
+- تحقق من تحميل Google Analytics في Network tab
+- تأكد من عدم تحميل GA4 في وضع التصحيح
 
-### 1. **إعداد MongoDB Atlas**
-```bash
-1. إنشاء حساب في MongoDB Atlas
-2. إنشاء cluster جديد
-3. إنشاء database باسم "rahla-store"
-4. إنشاء user مع صلاحيات read/write
-5. الحصول على connection string
-```
+## نصائح الأمان
 
-### 2. **إعداد Render**
-```bash
-1. إنشاء حساب في Render
-2. إنشاء Web Service جديد
-3. ربط GitHub repository
-4. إضافة Environment Variables
-5. الحصول على Service ID و API Key
-```
+1. **لا تشارك ملف .env** - أضفه إلى .gitignore
+2. **استخدم قيم مختلفة** للإنتاج والتطوير
+3. **استخدم JWT secrets قوية** في الإنتاج
+4. **تحقق من CORS origins** قبل النشر
 
-### 3. **إعداد Bunny CDN**
-```bash
-1. إنشاء حساب في Bunny CDN
-2. إنشاء Storage Zone
-3. الحصول على FTP Password
-4. رفع الصور إلى Storage Zone
-```
+## استكشاف الأخطاء
 
-### 4. **إعداد Sentry**
-```bash
-1. إنشاء حساب في Sentry
-2. إنشاء project جديد
-3. الحصول على DSN
-4. إضافة DSN في Render Environment
-```
+### مشكلة: GA4 لا يعمل
+- تأكد من صحة GA4_MEASUREMENT_ID
+- تحقق من أن DEBUG_MODE=false
+- فحص Console للأخطاء
 
-### 5. **إعداد Google Analytics**
-```bash
-1. إنشاء حساب في Google Analytics
-2. إنشاء property جديد
-3. الحصول على Measurement ID
-4. استبدال G-XXXXXX في index.html
-```
+### مشكلة: API لا يعمل
+- تأكد من صحة API_BASE_URL
+- تحقق من CORS_ORIGIN
+- فحص Network tab للطلبات
 
-## ✅ التحقق من الإعداد
+### مشكلة: الصور لا تظهر
+- تأكد من صحة CDN_URL
+- تحقق من BUNNY_CDN_API_KEY
+- فحص صحة مسارات الصور
 
-### 1. **اختبار Backend**
-```bash
-curl https://your-render-app.onrender.com/health
-# يجب أن يعيد: {"ok":true,"time":"..."}
-```
+## الملفات المرجعية
 
-### 2. **اختبار Frontend**
-```bash
-# افتح: https://bthwani1.github.io/web-test
-# تحقق من:
-# - تحميل الصفحة بدون أخطاء
-# - ظهور المنتجات
-# - عمل البحث والفلترة
-# - عمل سلة التسوق
-```
-
-### 3. **اختبار Admin Panel**
-```bash
-# تسجيل الدخول كـ admin
-# تحقق من:
-# - إضافة منتجات جديدة
-# - تعديل المنتجات
-# - حذف المنتجات
-# - رفع الصور
-```
-
-## 🔒 الأمان
-
-### 1. **JWT Secret**
-```bash
-# استخدم مفتاح قوي (32+ حرف)
-JWT_SECRET=your-super-secret-jwt-key-here-32-chars-min
-```
-
-### 2. **MongoDB Security**
-```bash
-# استخدم connection string آمن
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/rahla-store?retryWrites=true&w=majority
-```
-
-### 3. **CORS Configuration**
-```bash
-# تأكد من أن CORS_ORIGIN صحيح
-CORS_ORIGIN=https://bthwani1.github.io
-```
-
-## 📊 المراقبة
-
-### 1. **Google Analytics**
-- تتبع الزوار
-- تتبع الأحداث
-- تتبع Web Vitals
-
-### 2. **Sentry**
-- مراقبة الأخطاء
-- تتبع الأداء
-- تنبيهات الأخطاء
-
-### 3. **Render Dashboard**
-- مراقبة الأداء
-- تتبع الاستخدام
-- تنبيهات المشاكل
-
-## 🎯 النتيجة النهائية
-
-بعد إكمال جميع المتغيرات البيئية:
-
-1. **Backend**: سيعمل على Render مع MongoDB
-2. **Frontend**: سيعمل على GitHub Pages
-3. **CDN**: ستعمل الصور من Bunny CDN
-4. **Monitoring**: ستعمل المراقبة مع GA4 و Sentry
-5. **CI/CD**: سيعمل النشر التلقائي مع GitHub Actions
-
-**المشروع سيكون جاهزاً للإنتاج بنسبة 100%! 🚀**
-
+- `config.js` - ملف التكوين الرئيسي
+- `ga4-loader.js` - محمل GA4 الديناميكي
+- `.env.example` - مثال على متغيرات البيئة
+- `ENVIRONMENT_SETUP.md` - هذا الملف

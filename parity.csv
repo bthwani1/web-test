@@ -1,0 +1,2 @@
+method,normalized_path,openapi_path,backend_path,status,evidence_file
+POST,/AUTH/REGISTER-INITIAL,NaN,NaN,NaN,create-admin.html

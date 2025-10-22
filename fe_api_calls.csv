@@ -1,0 +1,2 @@
+method,url,file
+POST,https://web-test-d179.onrender.com/auth/register-initial,create-admin.html

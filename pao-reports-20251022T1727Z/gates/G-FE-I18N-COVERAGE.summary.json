@@ -1,0 +1,10 @@
+{
+  "gate_id": "G-FE-I18N-COVERAGE",
+  "status": "FAIL",
+  "metrics": {
+    "missing": "i18n files not found"
+  },
+  "artifacts": [],
+  "timestamp": "2025-10-22T17:18:59Z",
+  "reason": "missing_files"
+}

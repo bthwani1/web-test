@@ -1,0 +1,3 @@
+ID,Title,Category,Severity,RiskScore,Evidence,RootCause,Impact,Metric,Baseline,Target,Owner,Due,DoD,Rollback,Status,PR,Notes
+WF-001,No dist build artifacts,Perf,P1,12,reports/gates/G-FE-BUNDLE-BUDGET.summary.json,Build not run,Perf budgets unknown,offenders,—,0,@FE,+2d,LHCI pass,fallback to previous build,OPEN,,
+WF-002,Missing OpenAPI parity,Contracts,P1,16,reports/parity.csv,No OAS,Contract drift risk,consistency%,—,>=85%,@BE,+5d,parity csv mapped,rollback routes to last stable,OPEN,,

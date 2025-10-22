@@ -74,14 +74,10 @@
     <!-- Web Vitals (performance monitoring) -->
     <script defer src="https://unpkg.com/web-vitals@3/dist/web-vitals.iife.js" crossorigin="anonymous"></script>
 
-    <!-- Google Analytics 4 -->
-    <!-- استبدل G-XXXXXX بـ GA4 Measurement ID الحقيقي -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXX"></script>
-    <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);} 
-    gtag('js', new Date());
-    gtag('config', 'G-XXXXXX');
+    <!-- Google Analytics 4 - Dynamic Loading -->
+    <script type="module">
+    import { initializeGA4 } from './ga4-loader.js';
+    // GA4 will be initialized by the loader
     </script>
 </head>
 <body>

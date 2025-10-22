@@ -1,0 +1,7 @@
+extends: ["spectral:oas"]
+rules:
+  http-status-taxonomy:
+    description: "Only allowed status codes"
+    given: "$.paths..responses.*~"
+    then: { function: pattern, functionOptions: { match: "^(200|201|202|204|400|401|403|404|409|410|415|422|429|5\\d\\d)$" } }
+    severity: error

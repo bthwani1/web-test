@@ -1,0 +1,2 @@
+service,method,path_norm,auth,dto_in,dto_out,screen,route,surface,state,last_change,notes
+public-api,POST,/AUTH/REGISTER-INITIAL,TBD,TBD,TBD,/,TBD,WEB-APP,ACTIVE,TBD,

@@ -1,0 +1,10 @@
+{
+  "gate_id": "G-FE-BUNDLE-BUDGET",
+  "status": "FAIL",
+  "metrics": {
+    "reason": "dist_missing"
+  },
+  "artifacts": [],
+  "timestamp": "2025-10-22T17:18:59Z",
+  "reason": "no_build_artifacts"
+}

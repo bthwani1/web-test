@@ -1,0 +1,14 @@
+screen_or_file,method,path,file
+index.html,GET,/,index.html
+index.html,GET,/home,index.html
+index.html,GET,/products,index.html
+index.html,GET,/about,index.html
+index.html,GET,/contact,index.html
+admin/index.html,GET,/admin,admin/index.html
+admin/index.html,GET,/admin/dashboard,admin/index.html
+admin/index.html,GET,/admin/products,admin/index.html
+admin/index.html,GET,/admin/users,admin/index.html
+admin/index.html,GET,/admin/orders,admin/index.html
+admin/index.html,GET,/admin/settings,admin/index.html
+create-admin.html,GET,/create-admin,create-admin.html
+create-admin.html,POST,/auth/register-initial,create-admin.html

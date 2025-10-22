@@ -1,0 +1,10 @@
+{
+  "gate_id": "G-FE-ROUTES-UNIQ",
+  "status": "PASS",
+  "metrics": {
+    "duplicates": 0
+  },
+  "artifacts": [],
+  "timestamp": "2025-10-22T17:18:59Z",
+  "reason": "ok"
+}
