@@ -1,0 +1,15 @@
+{
+  "gate_id": "G-FE-ROUTES-UNIQ",
+  "status": "PASS",
+  "metrics": {
+    "duplicates": 0,
+    "unique_routes": 15,
+    "total_routes": 15
+  },
+  "artifacts": [
+    "fe_routes.csv",
+    "fe_api_calls.csv"
+  ],
+  "timestamp": "2025-01-22T12:00:00Z",
+  "reason": "no_duplicate_routes"
+}
