@@ -149,10 +149,13 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
+                                    <th><input type="checkbox" id="selectAllProducts"></th>
                                     <th>الصورة</th>
                                     <th>الاسم</th>
                                     <th>الفئة</th>
                                     <th>السعر</th>
+                                    <th>المخزون</th>
+                                    <th>الحالة</th>
                                     <th>التقييم</th>
                                     <th>المشاهدات</th>
                                     <th>الإجراءات</th>
@@ -160,7 +163,7 @@
                             </thead>
                             <tbody id="productsTableBody">
                                 <tr>
-                                    <td colspan="7" class="loading">جاري التحميل...</td>
+                                    <td colspan="10" class="loading">جاري التحميل...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -171,9 +174,28 @@
                 <div id="categories" class="tab-content">
                     <div class="content-header">
                         <h2>إدارة الفئات</h2>
-                        <button id="addCategoryBtn" class="btn btn-primary">
-                            <i class="fas fa-plus"></i>
-                            إضافة فئة جديدة
+                        <div class="header-actions">
+                            <button id="addCategoryBtn" class="btn btn-primary">
+                                <i class="fas fa-plus"></i>
+                                إضافة فئة جديدة
+                            </button>
+                            <button id="bulkActionsBtn" class="btn btn-secondary">
+                                <i class="fas fa-tasks"></i>
+                                عمليات جماعية
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="filters-bar">
+                        <input type="text" id="categorySearch" placeholder="البحث في الفئات...">
+                        <select id="statusFilter">
+                            <option value="">جميع الحالات</option>
+                            <option value="active">نشط</option>
+                            <option value="inactive">غير نشط</option>
+                        </select>
+                        <button id="refreshCategories" class="btn btn-secondary">
+                            <i class="fas fa-refresh"></i>
+                            تحديث
                         </button>
                     </div>
                     
@@ -181,16 +203,20 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
+                                    <th><input type="checkbox" id="selectAllCategories"></th>
+                                    <th>الأيقونة</th>
                                     <th>الاسم</th>
-                                    <th>الرابط</th>
+                                    <th>الوصف</th>
                                     <th>عدد المنتجات</th>
+                                    <th>الترتيب</th>
+                                    <th>الحالة</th>
                                     <th>تاريخ الإنشاء</th>
                                     <th>الإجراءات</th>
                                 </tr>
                             </thead>
                             <tbody id="categoriesTableBody">
                                 <tr>
-                                    <td colspan="5" class="loading">جاري التحميل...</td>
+                                    <td colspan="9" class="loading">جاري التحميل...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -232,61 +258,161 @@
 
     <!-- Product Modal -->
     <div id="productModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content large">
             <div class="modal-header">
                 <h3 id="productModalTitle">إضافة منتج جديد</h3>
                 <button class="modal-close">&times;</button>
             </div>
             <form id="productForm">
                 <div class="modal-body">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="productName">اسم المنتج</label>
-                            <input type="text" id="productName" required>
+                    <!-- Basic Information -->
+                    <div class="form-section">
+                        <h4>المعلومات الأساسية</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="productName">اسم المنتج *</label>
+                                <input type="text" id="productName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productSKU">رمز المنتج (SKU)</label>
+                                <input type="text" id="productSKU" placeholder="سيتم إنشاؤه تلقائياً">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="productCategory">الفئة</label>
-                            <select id="productCategory" required>
-                                <option value="">اختر الفئة</option>
-                            </select>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="productCategory">الفئة *</label>
+                                <select id="productCategory" required>
+                                    <option value="">اختر الفئة</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="productBrand">العلامة التجارية</label>
+                                <input type="text" id="productBrand">
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="productDescription">الوصف</label>
-                        <textarea id="productDescription" rows="3"></textarea>
-                    </div>
-                    
-                    <div class="form-row">
+                        
                         <div class="form-group">
-                            <label for="productPrice">السعر</label>
-                            <input type="number" id="productPrice" min="0" step="0.01" required>
+                            <label for="productShortDescription">وصف مختصر</label>
+                            <textarea id="productShortDescription" rows="2"></textarea>
                         </div>
+                        
                         <div class="form-group">
-                            <label for="productOldPrice">السعر القديم (اختياري)</label>
-                            <input type="number" id="productOldPrice" min="0" step="0.01">
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="productRating">التقييم</label>
-                            <input type="number" id="productRating" min="0" max="5" step="0.1" value="4">
-                        </div>
-                        <div class="form-group">
-                            <label for="productStock">المخزون</label>
-                            <input type="number" id="productStock" min="0" value="0">
+                            <label for="productFullDescription">الوصف الكامل</label>
+                            <textarea id="productFullDescription" rows="4"></textarea>
                         </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="productTags">العلامات (مفصولة بفاصلة)</label>
-                        <input type="text" id="productTags" placeholder="جديد, مميز, عروض">
+                    <!-- Pricing -->
+                    <div class="form-section">
+                        <h4>التسعير</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="productPrice">السعر *</label>
+                                <input type="number" id="productPrice" min="0" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productOldPrice">السعر القديم</label>
+                                <input type="number" id="productOldPrice" min="0" step="0.01">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="productCostPrice">سعر التكلفة</label>
+                                <input type="number" id="productCostPrice" min="0" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="productMargin">هامش الربح (%)</label>
+                                <input type="number" id="productMargin" min="0" step="0.01">
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="productImage">رابط الصورة</label>
-                        <input type="url" id="productImage" placeholder="https://rahlacdn.b-cdn.net/...">
+                    <!-- Inventory -->
+                    <div class="form-section">
+                        <h4>المخزون والمواصفات</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="productStock">الكمية في المخزون</label>
+                                <input type="number" id="productStock" min="0" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="productWeight">الوزن (جرام)</label>
+                                <input type="number" id="productWeight" min="0" value="0">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="productMaterial">المادة</label>
+                                <input type="text" id="productMaterial">
+                            </div>
+                            <div class="form-group">
+                                <label for="productColor">اللون</label>
+                                <input type="text" id="productColor">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="productSize">الحجم</label>
+                                <input type="text" id="productSize">
+                            </div>
+                            <div class="form-group">
+                                <label for="productStatus">الحالة</label>
+                                <select id="productStatus">
+                                    <option value="draft">مسودة</option>
+                                    <option value="active">نشط</option>
+                                    <option value="inactive">غير نشط</option>
+                                    <option value="discontinued">متوقف</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Media -->
+                    <div class="form-section">
+                        <h4>الصور والوسائط</h4>
+                        <div class="form-group">
+                            <label for="productImage">الصورة الرئيسية</label>
+                            <input type="url" id="productImage" placeholder="https://rahlacdn.b-cdn.net/...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="productImages">صور إضافية (مفصولة بفاصلة)</label>
+                            <textarea id="productImages" rows="2" placeholder="https://rahlacdn.b-cdn.net/..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- SEO & Marketing -->
+                    <div class="form-section">
+                        <h4>SEO والتسويق</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="productRating">التقييم</label>
+                                <input type="number" id="productRating" min="0" max="5" step="0.1" value="4">
+                            </div>
+                            <div class="form-group">
+                                <label for="productFeatured">مميز</label>
+                                <input type="checkbox" id="productFeatured">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="productTags">العلامات (مفصولة بفاصلة)</label>
+                            <input type="text" id="productTags" placeholder="جديد, مميز, عروض">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="productMetaTitle">عنوان SEO</label>
+                            <input type="text" id="productMetaTitle">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="productMetaDescription">وصف SEO</label>
+                            <textarea id="productMetaDescription" rows="2"></textarea>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -299,16 +425,72 @@
 
     <!-- Category Modal -->
     <div id="categoryModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content large">
             <div class="modal-header">
                 <h3 id="categoryModalTitle">إضافة فئة جديدة</h3>
                 <button class="modal-close">&times;</button>
             </div>
             <form id="categoryForm">
                 <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="categoryName">اسم الفئة *</label>
+                            <input type="text" id="categoryName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="categoryIcon">الأيقونة</label>
+                            <input type="text" id="categoryIcon" placeholder="fas fa-tag">
+                            <small>FontAwesome class name</small>
+                        </div>
+                    </div>
+                    
                     <div class="form-group">
-                        <label for="categoryName">اسم الفئة</label>
-                        <input type="text" id="categoryName" required>
+                        <label for="categoryDescription">الوصف</label>
+                        <textarea id="categoryDescription" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="categoryColor">اللون</label>
+                            <input type="color" id="categoryColor" value="#0ea5e9">
+                        </div>
+                        <div class="form-group">
+                            <label for="categorySortOrder">ترتيب العرض</label>
+                            <input type="number" id="categorySortOrder" min="0" value="0">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="categoryImage">صورة الفئة</label>
+                        <input type="url" id="categoryImage" placeholder="https://rahlacdn.b-cdn.net/...">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="categoryStatus">الحالة</label>
+                            <select id="categoryStatus">
+                                <option value="active">نشط</option>
+                                <option value="inactive">غير نشط</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="parentCategory">الفئة الأب</label>
+                            <select id="parentCategory">
+                                <option value="">فئة رئيسية</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4>إعدادات SEO</h4>
+                        <div class="form-group">
+                            <label for="categoryMetaTitle">عنوان SEO</label>
+                            <input type="text" id="categoryMetaTitle">
+                        </div>
+                        <div class="form-group">
+                            <label for="categoryMetaDescription">وصف SEO</label>
+                            <textarea id="categoryMetaDescription" rows="2"></textarea>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
