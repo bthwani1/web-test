@@ -29,6 +29,9 @@ class AdminPanel {
         
         // Product management
         document.getElementById('addProductBtn').addEventListener('click', () => this.showProductModal());
+        document.getElementById('bulkProductActionsBtn').addEventListener('click', () => this.handleBulkProductActions());
+        document.getElementById('exportProductsBtn').addEventListener('click', () => this.exportProducts());
+        document.getElementById('importProductsBtn').addEventListener('click', () => this.importProducts());
         document.getElementById('refreshProducts').addEventListener('click', () => this.loadProducts());
         document.getElementById('productSearch').addEventListener('input', (e) => this.filterProducts(e.target.value));
         document.getElementById('categoryFilter').addEventListener('change', (e) => this.filterProductsByCategory(e.target.value));
@@ -36,6 +39,8 @@ class AdminPanel {
         // Category management
         document.getElementById('addCategoryBtn').addEventListener('click', () => this.showCategoryModal());
         document.getElementById('bulkActionsBtn').addEventListener('click', () => this.handleBulkCategoryActions());
+        document.getElementById('exportCategoriesBtn').addEventListener('click', () => this.exportCategories());
+        document.getElementById('importCategoriesBtn').addEventListener('click', () => this.importCategories());
         document.getElementById('refreshCategories').addEventListener('click', () => this.loadCategories());
         document.getElementById('categorySearch').addEventListener('input', (e) => this.filterCategories(e.target.value));
         document.getElementById('statusFilter').addEventListener('change', (e) => this.filterCategoriesByStatus(e.target.value));
@@ -904,6 +909,144 @@ class AdminPanel {
             })
         );
         await Promise.all(promises);
+    }
+    
+    // Export and Import functions
+    async exportProducts() {
+        try {
+            const response = await this.apiRequest('/products/export?format=csv');
+            
+            // Create and download CSV file
+            const blob = new Blob([response], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `products_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            this.showSuccess('تم تصدير المنتجات بنجاح');
+        } catch (error) {
+            this.showError('خطأ في تصدير المنتجات');
+        }
+    }
+    
+    async importProducts() {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.csv,.json';
+        fileInput.onchange = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            try {
+                const text = await file.text();
+                let data;
+                
+                if (file.name.endsWith('.csv')) {
+                    // Parse CSV
+                    data = this.parseCSV(text);
+                } else if (file.name.endsWith('.json')) {
+                    // Parse JSON
+                    data = JSON.parse(text);
+                } else {
+                    throw new Error('نوع الملف غير مدعوم');
+                }
+                
+                // Import data
+                const response = await this.apiRequest('/products/import', {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                    headers: { 'Authorization': `Bearer ${this.token}` }
+                });
+                
+                this.showSuccess(`تم استيراد ${response.created} منتج بنجاح`);
+                this.loadProducts();
+            } catch (error) {
+                this.showError('خطأ في استيراد المنتجات: ' + error.message);
+            }
+        };
+        fileInput.click();
+    }
+    
+    async exportCategories() {
+        try {
+            const response = await this.apiRequest('/categories');
+            
+            // Create and download JSON file
+            const data = JSON.stringify(response.items, null, 2);
+            const blob = new Blob([data], { type: 'application/json;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `categories_${new Date().toISOString().split('T')[0]}.json`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            this.showSuccess('تم تصدير الفئات بنجاح');
+        } catch (error) {
+            this.showError('خطأ في تصدير الفئات');
+        }
+    }
+    
+    async importCategories() {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.json';
+        fileInput.onchange = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            try {
+                const text = await file.text();
+                const data = JSON.parse(text);
+                
+                // Import each category
+                let imported = 0;
+                for (const category of data) {
+                    try {
+                        await this.apiRequest('/categories', {
+                            method: 'POST',
+                            body: JSON.stringify(category),
+                            headers: { 'Authorization': `Bearer ${this.token}` }
+                        });
+                        imported++;
+                    } catch (error) {
+                        console.warn('خطأ في استيراد فئة:', category.name, error);
+                    }
+                }
+                
+                this.showSuccess(`تم استيراد ${imported} فئة بنجاح`);
+                this.loadCategories();
+            } catch (error) {
+                this.showError('خطأ في استيراد الفئات: ' + error.message);
+            }
+        };
+        fileInput.click();
+    }
+    
+    // Helper function to parse CSV
+    parseCSV(text) {
+        const lines = text.split('\n');
+        const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+        const data = [];
+        
+        for (let i = 1; i < lines.length; i++) {
+            if (lines[i].trim()) {
+                const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+                const item = {};
+                headers.forEach((header, index) => {
+                    item[header] = values[index] || '';
+                });
+                data.push(item);
+            }
+        }
+        
+        return data;
     }
 }
 
