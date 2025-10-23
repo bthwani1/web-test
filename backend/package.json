@@ -8,7 +8,10 @@
     "dev": "nodemon server.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "security:audit": "node security-audit.js",
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -25,7 +28,9 @@
     "axios": "^1.5.0",
     "bull": "^4.11.3",
     "redis": "^4.6.7",
-    "@sentry/node": "^7.61.1"
+    "@sentry/node": "^7.61.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1",

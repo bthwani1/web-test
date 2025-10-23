@@ -4,9 +4,27 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
-const * as Sentry from '@sentry/node';
+const Sentry = require('@sentry/node');
 const { applySecurityHeaders } = require('../security-headers');
+const { swaggerUi, specs } = require('./swagger');
 require('dotenv').config();
+
+// فحص صارم لمتغيرات البيئة المطلوبة
+const requiredEnvVars = [
+  'MONGODB_URI',
+  'JWT_SECRET',
+  'JWT_REFRESH_SECRET',
+  'SENTRY_DSN'
+];
+
+const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+if (missingVars.length > 0) {
+  console.error('❌ متغيرات البيئة المطلوبة مفقودة:', missingVars.join(', '));
+  console.error('يرجى التأكد من وجود ملف .env مع جميع المتغيرات المطلوبة');
+  process.exit(1);
+}
+
+console.log('✅ جميع متغيرات البيئة المطلوبة موجودة');
 
 const app = express();
 
@@ -35,9 +53,36 @@ app.use(helmet({
 // تطبيق رؤوس الأمان المتقدمة
 applySecurityHeaders(app);
 
+// CORS configuration with allowlist
+const allowedOrigins = [
+  'https://rahla.example.com',
+  'https://admin.rahla.example.com',
+  'https://bthwani1.github.io',
+  'http://localhost:3000',
+  'http://localhost:3001'
+];
+
+// Add environment-specific origins
+if (process.env.CORS_ORIGIN) {
+  allowedOrigins.push(process.env.CORS_ORIGIN);
+}
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'https://bthwani1.github.io',
-  credentials: true
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked request from origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['X-Total-Count', 'X-Page-Count']
 }));
 
 // Rate limiting
@@ -69,13 +114,77 @@ app.use('/api/categories', require('./routes/categories'));
 app.use('/api/media', require('./routes/media'));
 app.use('/api/admin', require('./routes/admin'));
 
-// Health check
+// API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Rahla Store API Documentation'
+}));
+
+// Health checks
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
   });
+});
+
+// Advanced health check
+app.get('/healthz', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Readiness check
+app.get('/readyz', async (req, res) => {
+  try {
+    // Check database connection
+    const dbState = mongoose.connection.readyState;
+    const dbStatus = dbState === 1 ? 'connected' : 'disconnected';
+    
+    // Check Redis connection (if configured)
+    let redisStatus = 'not-configured';
+    if (process.env.REDIS_URL) {
+      // Add Redis health check here if needed
+      redisStatus = 'connected';
+    }
+    
+    const health = {
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      services: {
+        database: {
+          status: dbStatus,
+          readyState: dbState
+        },
+        redis: {
+          status: redisStatus
+        }
+      }
+    };
+    
+    // Return 200 if all services are healthy
+    if (dbState === 1) {
+      res.json(health);
+    } else {
+      res.status(503).json({
+        ...health,
+        status: 'Service Unavailable'
+      });
+    }
+  } catch (error) {
+    res.status(503).json({
+      status: 'Service Unavailable',
+      timestamp: new Date().toISOString(),
+      error: error.message
+    });
+  }
 });
 
 // Sentry error handler

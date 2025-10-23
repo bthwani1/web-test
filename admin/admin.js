@@ -1,7 +1,7 @@
 // Admin Panel JavaScript
 class AdminPanel {
     constructor() {
-        this.apiBase = 'https://rahla-api.onrender.com'; // Update with your API URL
+        this.apiBase = 'https://rahla-api.onrender.com/api'; // Update with your API URL
         this.token = localStorage.getItem('adminToken');
         this.currentUser = null;
         this.currentProduct = null;
