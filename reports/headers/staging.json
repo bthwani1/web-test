@@ -1,0 +1,29 @@
+﻿[
+    {
+        "headers":  {
+                        "set-cookie":  "",
+                        "content-security-policy":  "",
+                        "access-control-allow-origin":  "",
+                        "strict-transport-security":  ""
+                    },
+        "url":  "https://bthwani1.github.io/web-test/"
+    },
+    {
+        "headers":  {
+                        "set-cookie":  "",
+                        "content-security-policy":  "",
+                        "access-control-allow-origin":  "",
+                        "strict-transport-security":  ""
+                    },
+        "url":  "https://bthwani1.github.io/web-test/checkout"
+    },
+    {
+        "headers":  {
+                        "set-cookie":  "",
+                        "content-security-policy":  "",
+                        "access-control-allow-origin":  "",
+                        "strict-transport-security":  ""
+                    },
+        "url":  "https://bthwani1.github.io/web-test/api/v1/profile"
+    }
+]

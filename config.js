@@ -20,23 +20,23 @@ export const config = {
   
   // Backend Configuration
   BACKEND_PORT: parseInt(process.env.BACKEND_PORT) || 8080,
-  MONGODB_URI: process.env.MONGODB_URI || 'mongodb+srv://USER:PASS@CLUSTER/rahla?retryWrites=true&w=majority',
-  JWT_SECRET: process.env.JWT_SECRET || 'b6e715fb3ca713a51ed9c239d5e5ee75dee0cdbc6f62bd990f0aebc30ffae008d2a5d6853f651d8767dbd9690d8f77409119decf15e59394159d7f15d9a4c424',
+  MONGODB_URI: process.env.MONGODB_URI || 'mongodb+srv://USER:PASS@CLUSTER/DATABASE?retryWrites=true&w=majority',
+  JWT_SECRET: process.env.JWT_SECRET || '',
   CORS_ORIGIN: process.env.CORS_ORIGIN || 'https://bthwani1.github.io,https://bthwani1.github.io/web-test',
   
   // CDN Configuration
-  BUNNY_CDN_API_KEY: process.env.BUNNY_CDN_API_KEY || '8e26303d-9e5c-474e-8a814128ed9e-4658-4664',
-  BUNNY_CDN_STORAGE_ZONE: process.env.BUNNY_CDN_STORAGE_ZONE || 'rahlamedia',
-  BUNNY_CDN_PULL_ZONE: process.env.BUNNY_CDN_PULL_ZONE || 'rahlacdn',
+  BUNNY_CDN_API_KEY: process.env.BUNNY_CDN_API_KEY || '',
+  BUNNY_CDN_STORAGE_ZONE: process.env.BUNNY_CDN_STORAGE_ZONE || 'PLACEHOLDER_STORAGE_ZONE',
+  BUNNY_CDN_PULL_ZONE: process.env.BUNNY_CDN_PULL_ZONE || 'PLACEHOLDER_PULL_ZONE',
   
   // Monitoring
-  SENTRY_DSN: process.env.SENTRY_DSN || 'your-sentry-dsn-here',
-  POSTHOG_API_KEY: process.env.POSTHOG_API_KEY || 'your-posthog-key',
+  SENTRY_DSN: process.env.SENTRY_DSN || '',
+  POSTHOG_API_KEY: process.env.POSTHOG_API_KEY || '',
   
   // Admin Configuration
   ADMIN_NAME: process.env.ADMIN_NAME || 'Owner',
   ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'owner@example.com',
-  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || 'ChangeMe123',
+  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || '',
   
   // Security
   NODE_ENV: process.env.NODE_ENV || 'production'
